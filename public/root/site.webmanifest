@@ -1,6 +1,6 @@
 {
-    "name": "API Backend",
-    "short_name": "API",
+    "name": "MtG Settle Server",
+    "short_name": "Settle",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
