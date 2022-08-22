@@ -13,5 +13,6 @@ const internalErrors = require('../internal/config/errors.internal')
 module.exports = {
   ...internalErrors,
 
-  error: () => createError(500, "Unknown server error."),
+  // Cards.model Errors
+  addCardImg: () => createError(400, "Cannot add card and fetch image in same operation. Add card then fetch image."),
 }

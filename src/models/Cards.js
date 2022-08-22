@@ -1,44 +1,56 @@
+const { randomUUID } = require('crypto')
 const Model = require('../internal/models/Model')
+const { getSetCards, storeCardImage, updateCardImage, deleteImage } = require('../services/fetch.services')
 const { cardID, setCode } = require('./schema.shared')
+const errors = require('../config/errors')
 
 class Cards extends Model {
   constructor() {
     super('cards', {
       id: { isPrimary: true, ...cardID },
+      scryfallId: { ...cardID },
       setCode: { ...setCode },
-      name: {
-        typeStr: "string*",
-        limits: { min: 0, max: 100 },
-      },
-      artist: {
-        typeStr: "string*",
-        limits: { min: 0, max: 100 },
-      },
-      type: {
-        typeStr: "string*",
-        limits: { min: 0, max: 500 },
-      },
-      url: {
-        typeStr: "uuid?",
-        limits: { min: 36, max: 36 },
-      },
+      name:    { typeStr: "string*", limits: { min:  0, max: 100 } },
+      artist:  { typeStr: "string*", limits: { min:  0, max: 100 } },
+      type:    { typeStr: "string*", limits: { min:  0, max: 500 } },
+      img:     { typeStr: "uuid?",   limits: { min: 36, max:  36 } },
     })
   }
 
-  storeSet(setCode) {
-    throw new Error('storeSet not implemented')
+  async add(data) {
+    await updateCardImage(data)
+    return super.add(data)
   }
 
-  clearSet(setCode) {
-    throw new Error('clearSet not implemented')
+  update(id, data, idKey = null) {
+    return super.update(id, data, idKey, updateCardImage)
   }
 
-  storeImage(scryfallId) {
-    throw new Error('storeImage not implemented')
+  async remove(id, idKey = null) {
+    if (idKey && !Object.keys(this.schema).includes(idKey)) throw errors.badKey(idKey, this.title)
+    
+    const imgs = await super.custom(`SELECT img FROM ${this.title} WHERE ${idKey || this.primaryId} = ? AND img IS NOT NULL`, [id], true)
+    for (const data of imgs) { await deleteImage(data.img) }
+
+    return super.remove(id, idKey)
   }
 
-  clearImage(scryfallId) {
-    throw new Error('clearImage not implemented')
+  async addSet(setCode) {
+    const setCards = await getSetCards(setCode)
+    for (const card of setCards) { await super.add(card) }
+    // IMPLEMENT BATCH-ADD IN SCAFFOLDING
+    return { success: true }
+  }
+
+  async getImage(id, idKey = null) {
+    const existing = await super.get(id, idKey)
+    if (!existing) return errors.noEntry(id)
+    if (existing.img) return existing.img
+
+    const img = randomUUID()
+    await storeCardImage(existing.scryfallId, img)
+    await super.update(existing.id, { img })
+    return img
   }
 }
 
