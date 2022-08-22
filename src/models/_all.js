@@ -1,4 +1,6 @@
 module.exports = [
-  require('./Base'),
-  // require('../internal/testing/Test.model'), // Uncomment to use Test model in App
+  require('./Games'),
+  require('./GameCards'),
+  require('./Cards'),
+  require('./Sets'),
 ]
