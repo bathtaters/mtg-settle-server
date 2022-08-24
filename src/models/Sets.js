@@ -16,12 +16,7 @@ class Sets extends Model {
 
   async updateAll() {
     const setList = await getSetList()
-    let added = 0
-    // IMPLEMENT BATCH-ADD IN SCAFFOLDING
-    for (const set of setList) {
-      await super.add(set, true).then((isAdded) => isAdded && added++)
-    }
-    return [added,setList.count]
+    return super.batchAdd(setList, 'skip')
   }
 }
 
