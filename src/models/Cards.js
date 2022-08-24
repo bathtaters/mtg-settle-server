@@ -37,9 +37,7 @@ class Cards extends Model {
 
   async addSet(setCode) {
     const setCards = await getSetCards(setCode)
-    for (const card of setCards) { await super.add(card) }
-    // IMPLEMENT BATCH-ADD IN SCAFFOLDING
-    return { success: true }
+    return super.batchAdd(setCards, 'skip')
   }
 
   async getImage(id, idKey = null) {
