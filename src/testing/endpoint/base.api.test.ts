@@ -1,14 +1,15 @@
 // Copy this test as a starting point for testing new Model APIs (Remove .skip from describe block)
 
-const server = require(require('../../engine.path').base+'server')
-const request = require('supertest')(server)
-const { getApiHeader } = require(require('../../engine.path').testing+'endpoint.utils')
+import supertest from 'supertest'
+import server from '../../../engine/server'
+import { testEndpoint } from '../test.imports'
+const request = supertest(server)
 
 const apiPrefix = '/api/base' // change 'base' to Model title
 
 describe.skip('Test Base model API', () => {
-  let header, testId
-  beforeAll(() => getApiHeader().then((token) => { header = token }))
+  let header: { Authorization: string }, testId: number
+  beforeAll(() => testEndpoint.getApiHeader().then((token) => { header = token }))
 
   test('Confirm login works', async () => {
     await request.get(apiPrefix).set(header).expect(200).expect('Content-Type', /json/)

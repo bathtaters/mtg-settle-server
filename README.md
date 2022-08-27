@@ -23,10 +23,7 @@ Backend for [Settle](https://github.com/bathtaters/mtg-settle) _(Magic: the Gath
 ---
 
 ### To Do:
- - IMPLEMENT BATCH-ADD IN SCAFFOLDING
- 
- - CONVERT NON-INTERNAL TO TYPESCRIPT
-
+ - Move 'card.img' to GameCard object
  - Write services to auto-update models
  - Create Game endpoint (connect to security middleware)
  - Write service to store photos locally

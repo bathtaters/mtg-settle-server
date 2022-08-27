@@ -1,8 +1,10 @@
-const Model = require('../internal/models/Model')
-const { getSetList } = require('../services/fetch.services')
-const { setCode } = require('./schema.shared')
+import Model from '../../engine/models/Model'
+import { Feedback } from '../../engine/models/Model.d'
+import { CardSet } from './_types'
+import { getSetList } from '../services/fetch.services'
+import { setCode } from './schema.shared'
 
-class Sets extends Model {
+class Sets extends Model<CardSet> {
   constructor() {
     super('sets', {
       code:  { isPrimary: true, ...setCode },
@@ -14,10 +16,10 @@ class Sets extends Model {
     })
   }
 
-  async updateAll() {
+  async updateAll(): Promise<Feedback> {
     const setList = await getSetList()
     return super.batchAdd(setList, 'skip')
   }
 }
 
-module.exports = new Sets()
+export default new Sets()
