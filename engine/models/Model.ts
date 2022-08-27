@@ -1,23 +1,25 @@
-const { openDb, getDb } = require('../libs/db')
-const services = require('../services/db.services')
-const { getPrimaryIdAndAdaptSchema, runAdapters } = require('../services/model.services')
-const { checkInjection, appendAndSort } = require('../utils/db.utils')
-const { caseInsensitiveObject, filterByField } = require('../utils/common.utils')
-const { isBool, sanitizeSchemaData } = require('../utils/model.utils')
-const { parseBoolean } = require('../utils/validate.utils')
-const { adapterKey, ifExistsBehavior } = require('../config/models.cfg')
+// @ts-nocheck // Until entire engine is converted to TypeScript
+import { Definition, Feedback, ChangeCallback, IfExistsBehavior } from './Model.d'
+import { openDb, getDb } from '../libs/db'
+import services from '../services/db.services'
+import { getPrimaryIdAndAdaptSchema, runAdapters } from '../services/model.services'
+import { checkInjection, appendAndSort } from '../utils/db.utils'
+import { caseInsensitiveObject, filterByField } from '../utils/common.utils'
+import { isBool, sanitizeSchemaData } from '../utils/model.utils'
+import { parseBoolean } from '../utils/validate.utils'
+import { adapterKey, ifExistsBehavior } from '../config/models.cfg'
+import errors from '../config/errors.engine'
+
 const parseBool = parseBoolean(true)
-const errors = require('../config/errors.engine')
+export default class Model<Schema extends object> {
+  private _title: string = 'model'
+  private _primaryId: string = 'id'
+  private _schema: { [key: string]: Definition } = {}
+  private _defaults: Partial<Schema> = {}
+  private _hidden: string[] = []
+  readonly isInitialized: Promise<boolean>
 
-/** Base class for creating Database Models */
-class Model {
-
-  /**
-   * Creates a new database model and initializes it into the database
-   * @param  {string} title - Name of database table
-   * @param  {Object.<string,ModelDefinition>} definitions - All Model keys and their definitions
-   */
-  constructor(title, definitions) {
+  constructor(title: string, definitions: { [key: string]: Definition }) {
     if (!definitions) throw new Error(`${title} must be provided a definitions object.`)
 
     this.title = title
@@ -30,13 +32,16 @@ class Model {
     })
   }
   
-  create(overwrite = false) {
+
+  create(overwrite?: boolean): Promise<Feedback> {
     const dbSchema = { [this.title]: filterByField(this.schema, 'db') }
     return services.reset(getDb(), dbSchema, overwrite).then(() => ({ success: true }))
   }
-    
 
-  async get(id = null, idKey = null, raw = false) {
+
+  get(): Promise<Schema[]>
+  get(id: Schema[keyof Schema], idKey?: string, raw?: boolean): Promise<Schema>
+  async get(id?: Schema[keyof Schema], idKey?: string, raw?: boolean): Promise<Schema|Schema[]> {
     let result
     if (id == null)
       result = await services.all(getDb(), `SELECT * FROM ${this.title}`)
@@ -53,7 +58,7 @@ class Model {
   }
 
 
-  async getPage(page, size, reverse = null, orderKey = null) {
+  async getPage(page: number, size: number, reverse?: boolean, orderKey?: string): Promise<Schema[]> {
     if (!size) return Promise.reject(errors.noSize())
     if (orderKey && !Object.keys(this.schema).includes(orderKey)) throw errors.badKey(orderKey, this.title)
 
@@ -62,34 +67,33 @@ class Model {
     const result = await services.all(getDb(), 
       `SELECT * FROM ${this.title} ${sort}LIMIT ? OFFSET ?`,
       [size, (page - 1) * size]
-    ).then((res) => res.map(caseInsensitiveObject))
+    ).then((res: Schema[]) => res.map(caseInsensitiveObject))
 
-    return Promise.all(result.map((data) => runAdapters(adapterKey.get, data, this.schema, this.hidden)))
+    return Promise.all(result.map((data: Schema) => runAdapters(adapterKey.get, data, this.schema, this.hidden)))
   }
 
 
-  async find(matchData, partialMatch = false) {
+  async find(matchData: Partial<Schema>, partialMatch?: boolean): Promise<Schema[]> {
     matchData = await runAdapters(adapterKey.set, matchData, this.schema)
     matchData = sanitizeSchemaData(matchData, this.schema)
 
-    const searchData = Object.entries(matchData)
+    const searchData: [string, Schema[keyof Schema]][] = Object.entries(matchData)
     if (!searchData.length) throw errors.noData()
 
-    let text = [], params = []
+    let text: string[] = [], params: any[] = []
     searchData.forEach(([key,val]) => {
       if (!partialMatch) {
         text.push(`${key} = ?`)
         return params.push(val)
         
       } if (this.schema[key].isBitmap) {
-        val = +val
-        text.push(`${key} ${val ? '&' : '='} ?`)
-        return params.push(val)
+        const num = +val
+        text.push(`${key} ${num ? '&' : '='} ?`)
+        return params.push(num)
 
       } if (isBool(this.schema[key])) {
-        val = +parseBool(val)
         text.push(`${key} = ?`)
-        return params.push(val)
+        return params.push(+parseBool(val))
 
       } if (typeof val === 'string') {
         text.push(`${key} LIKE ?`)
@@ -103,13 +107,13 @@ class Model {
     
     const result = await services.all(getDb(), 
       `SELECT * FROM ${this.title} WHERE ${text.join(' AND ')}`,
-    params).then((res) => res.map(caseInsensitiveObject))
+    params).then((res: Schema[]) => res.map(caseInsensitiveObject))
 
-    return Promise.all(result.map((data) => runAdapters(adapterKey.get, data, this.schema, this.hidden)))
+    return Promise.all(result.map((data: Schema) => runAdapters(adapterKey.get, data, this.schema, this.hidden)))
   }
 
 
-  async count(id = null, idKey = null) {
+  async count(id?: Schema[keyof Schema], idKey?: string): Promise<number> {
     if (idKey && !Object.keys(this.schema).includes(idKey)) throw errors.badKey(idKey, this.title)
     
     const filter = id != null ? ` WHERE ${idKey || this.primaryId} = ?` : ''
@@ -121,31 +125,33 @@ class Model {
   }
   
   
-  add(data, ifExists = 'default') {
-    return this.batchAdd([data], ifExists, true)
+  add(data: Schema, ifExists: IfExistsBehavior = 'default'): Promise<Schema> {
+    return this.batchAdd([data], ifExists, true) as Promise<Schema>
   }
 
-  
-  async batchAdd(dataArray, ifExists = 'default', returns = false) { // skip/overwrite/abort
+
+  batchAdd(dataArray: Schema[], ifExists?: IfExistsBehavior): Promise<Feedback>
+  batchAdd(dataArray: Schema[], ifExists: IfExistsBehavior, returns: boolean): Promise<Schema|Feedback>
+  async batchAdd(dataArray: Schema[], ifExists: IfExistsBehavior = 'default', returns?: boolean): Promise<Schema|Feedback> {
     dataArray = await Promise.all(dataArray.map((data) => runAdapters(adapterKey.set, { ...this.defaults, ...data }, this.schema)))
     dataArray = dataArray.map((data) => sanitizeSchemaData(data, this.schema))
     
-    const keys = Object.keys(dataArray[0])
+    const keys = Object.keys(dataArray[0]) as Array<keyof Schema>
     if (!keys.length) throw errors.noData()
 
     return services[returns ? 'getLastEntry' : 'run'](getDb(),
-      `INSERT${ifExistsBehavior[ifExists] ?? ifExistsBehavior.default} INTO ${this.title}(${
+      `INSERT${ifExists ? ifExistsBehavior[ifExists] : ifExistsBehavior.default} INTO ${this.title}(${
         keys.join(',')
       }) VALUES ${
         dataArray.map(() => `(${keys.map(() => '?').join(',')})`).join(',')
       }`,
       dataArray.flatMap((data) => keys.map((key) => data[key])),
       returns && this.title,
-    ).then((ret) => returns ? ret : { success: true })
+    ).then((ret: Schema|void) => returns ? ret : { success: true })
   }
-   
   
-  async update(id, data, idKey = null, onChangeCb = null) {
+  
+  async update(id: Schema[keyof Schema], data: Partial<Schema>, idKey?: string, onChangeCb?: ChangeCallback<Schema>): Promise<Feedback> {
     if (id == null) throw errors.noID()
 
     data = await runAdapters(adapterKey.set, data, this.schema)
@@ -156,7 +162,7 @@ class Model {
     if (!current) throw errors.noEntry(id)
 
     if (onChangeCb) {
-      const updated = await onChangeCb(data, current)
+      const updated = await onChangeCb(data, current as Awaited<Schema>)
       if (updated) data = updated
       data = sanitizeSchemaData(data, this.schema)
       if (!Object.keys(data).length) throw errors.noData()
@@ -170,7 +176,7 @@ class Model {
   }
   
   
-  async remove(id, idKey = null) {
+  async remove(id: Schema[keyof Schema], idKey?: string): Promise<Feedback> {
     if (id == null) return Promise.reject(errors.noID())
 
     const count = await this.count(id, idKey)
@@ -183,16 +189,20 @@ class Model {
   }
 
 
-  async custom(sql, params, raw = true) {
+  async custom(sql: string, params?: any[], raw?: boolean): Promise<Partial<Schema>[]> {
     /* WARNING!! SQL CANNOT BE CHECKED FOR INJECTION */
     const result = await services.all(getDb(), sql, params)
-      .then((res) => res.map(caseInsensitiveObject))
+      .then((res: Schema[]) => res.map(caseInsensitiveObject))
     if (raw) return result
-    return Promise.all(result.map((data) => runAdapters(adapterKey.get, data, this.schema, this.hidden)))
+    return Promise.all(result.map((data: Schema) => runAdapters(adapterKey.get, data, this.schema, this.hidden)))
   }
-
   
-  async getPaginationData({ page, size }, { defaultSize = 5, sizeList = [], startPage = 1 } = {}) {
+  
+  async getPaginationData(
+    { page, size }: { page?: number, size?: number },
+    { defaultSize = 5, sizeList = [], startPage = 1 }:
+    { defaultSize?: number, startPage?: number, sizeList?: number[] } = {}
+  ): Promise<{ data: Schema[], page: number, pageCount: number, size: number, sizes: number[] }> {
     const total = await this.count()
     
     size = +(size || defaultSize)
@@ -221,58 +231,3 @@ class Model {
     this._hidden = Object.keys(newSchema).filter((key) => newSchema[key].dbOnly)
   }
 }
-
-module.exports = Model
-
-
-// JSDOC TYPES
-
-/**
- * Callback that takes in a single piece of data and returns a modified version of that data
- * @callback Adapter
- * @param {any} value - input value
- * @param {Object} data - full input object
- * @returns {Object} updated input value
- */
-
-/**
- * Model definitions object
- * @typedef  {Object} ModelDefinition
- * @property {string} typeStr - Column type (full string)
- *   - Can be: string, uuid, b64[url], hex, date, datetime, boolean, int, float, object, any
- *   - (type)[] = array of (type)
- *   - (type)? = column is optional
- *   - string* = allow symbols/spaces in string
- * @property {import('../validators/shared.validators').Limits} [limits] - Object of column limits
- *   - { min?, max? } | { array: { min?, max? }, elem: { min?, max? } }
- *   - Sets limits on numbers, string length or array size
- * @property {any} [default] - Default value
- *   - Default value to use for that column if nothing provided on creation 
- *   - This value is run through setAdapter each time
- * @property {string} [isPrimary] - if column is SQL primary key
- *   - When no type/typeStr is provided, it will be set as auto-incrementing Int
- * @property {Adapter} [getAdapter] - Function called whenever this column is retrieved from the database
- *   - INPUT: Column value for row, Entire row as an object
- *   - RETURN: Updated column value for user
- *   - default: Converts data based on type
- * @property {Adapter} [setAdapter] - Function called whenever this column is stored in the database (ie. add/update)
- *   - INPUT: Column value for row, Entire row as an object
- *   - RETURN: Updated column value for database
- *   - default: Converts data based on type
- * @property {string} [html] - Type property for HTML <input> tag in user form
- *   - falsy value = column is only in database (Not accessible via UI)
- *   - default: property is auto-generated based on type
- * @property {string} [db] - Type of schema for this column in database
- *   - falsy value = column is not in database (Only for UI validation)
- *   - default: schema is auto-generated based on type
- * @property {string} [dbOnly] - If column is internal to database only
- *   - Truthy value will obscure column from non-raw get results
- * @property {string} [type] - Column base type (w/o suffixes)
- *   - default: parsed from typeStr
- * @property {string} [isOptional] - If column can be empty
- *   - default: parsed from typeStr
- * @property {string} [isArray] - If column is an array of <type>
- *   - default: parsed from typeStr
- * @property {string} [hasSpaces] - If a string column will allow spaces & special characters
- *   - default: parsed from typeStr
- */
