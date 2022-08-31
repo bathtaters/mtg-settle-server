@@ -133,6 +133,7 @@ export default class Model<Schema extends object> {
   batchAdd(dataArray: Schema[], ifExists?: IfExistsBehavior): Promise<Feedback>
   batchAdd(dataArray: Schema[], ifExists: IfExistsBehavior, returns: boolean): Promise<Schema|Feedback>
   async batchAdd(dataArray: Schema[], ifExists: IfExistsBehavior = 'default', returns?: boolean): Promise<Schema|Feedback> {
+    if (!dataArray.length) throw errors.noData('batch data')
     dataArray = await Promise.all(dataArray.map((data) => runAdapters(adapterKey.set, { ...this.defaults, ...data }, this.schema)))
     dataArray = dataArray.map((data) => sanitizeSchemaData(data, this.schema))
     
