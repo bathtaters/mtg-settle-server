@@ -1,6 +1,5 @@
-
-export async function downloadImage(imageURL: string, filename: string): Promise<void> {
-  throw new Error('downloadImage not implemented')
+export async function storeImage(imageURL: string, filename: string): Promise<void> {
+  throw new Error('storeImage not implemented')
 }
 
 export async function renameImage(oldName: string, newName: string): Promise<void> {

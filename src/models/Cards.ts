@@ -37,9 +37,9 @@ class Cards extends Model<Card> {
     return super.remove(id, idKey)
   }
 
-  async addSet(setCode: Card['setCode']): Promise<Feedback> {
+  async addSet(setCode: Card['setCode'], overwrite: boolean = false): Promise<Feedback> {
     const setCards = await getSetCards(setCode)
-    return super.batchAdd(setCards, 'skip')
+    return super.batchAdd(setCards, overwrite ? 'overwrite' : 'skip')
   }
 
   async getImage(id: Card[keyof Card], idKey?: keyof Card): Promise<Card['img']>  {
@@ -48,7 +48,7 @@ class Cards extends Model<Card> {
     if (existing.img) return existing.img
 
     const img = randomUUID()
-    await storeCardImage(existing, img)
+    await storeCardImage({ ...existing, img })
     await super.update(existing.id, { img })
     return img
   }

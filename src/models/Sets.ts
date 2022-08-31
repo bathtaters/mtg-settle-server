@@ -10,15 +10,16 @@ class Sets extends Model<CardSet> {
       code:  { isPrimary: true, ...setCode },
       name:  { typeStr: "string*", limits: { min: 0, max: 100 } },
       type:  { typeStr: "string",  limits: { min: 0, max:  50 } },
-      block: { typeStr: "string*", limits: { min: 0, max: 100 } },
+      block: { typeStr: "string*?", limits: { min: 0, max: 100 } },
       skip:  { typeStr: "boolean", default: false },
-      releaseDate: { typeStr: "date" },
+      releaseDate: { typeStr: "datetime" },
     })
   }
 
-  async updateAll(): Promise<Feedback> {
+  async updateAll(overwrite: boolean = false): Promise<Feedback> {
     const setList = await getSetList()
-    return super.batchAdd(setList, 'skip')
+    if (!setList.length) throw new Error("No sets found in DB, there may be an error with MTGJSON")
+    return super.batchAdd(setList, overwrite ? 'overwrite' : 'skip')
   }
 }
 

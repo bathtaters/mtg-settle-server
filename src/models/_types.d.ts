@@ -16,7 +16,7 @@ export interface CardSet {
   code:        SetCodeType,
   name:        string,
   type:        string,
-  block:       string,
+  block?:      string,
   skip:        boolean,
   releaseDate: DateType
 }
