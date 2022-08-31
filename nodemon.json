@@ -10,6 +10,7 @@
     "README*.*",
     "jest*.*",
     "*.test.js",
+    "*.test.ts",
     "package-lock.json",
     "node_modules"
   ],
@@ -17,5 +18,5 @@
   "events": {
     "restart": "osascript -e 'display notification \"App restarted due to:\n'$FILENAME'\" with title \"nodemon\"'"
   },
-  "ext": "js,json,env"
+  "ext": "ts,js,json,env"
 }
