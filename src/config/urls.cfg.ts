@@ -7,6 +7,12 @@ export const api = Object.freeze({
 
 gui = Object.freeze({
   splashRedirect: RegEx(/\/index(?:\.html?)?|\/home(?:\.html?)?/),
+  manage: Object.freeze({
+    prefix: '/manage',
+    games:  '/games',
+    cards:  '/cards',
+    sets:   '/sets',
+  }),
   root: Object.freeze({
     login:  '/login',
     logout: '/logout',

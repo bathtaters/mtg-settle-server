@@ -1,0 +1,21 @@
+extends ../../engine/views/components/container
+
+include ../../engine/views/components/form.mixins.pug
+
+block content
+  .container: .row: .col-sm
+    h3 Management Console
+    form(method="POST")
+
+      .row
+        .col.input-group
+          a.button.primary(type="button" href=baseURL+urls.gui.manage.sets) Update Set List
+
+        .col.input-group
+          input.button.primary(type="submit" value="Add Cards from" formaction=baseURL+urls.gui.manage.cards)
+          select#setCode(name="setCode")
+            each set in setList
+              option(value=set.code)= set.name
+
+      if csrfToken
+        span: +formInput('_csrf', 'hidden', null, csrfToken)
