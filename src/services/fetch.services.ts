@@ -23,9 +23,9 @@ export async function updateGameSet(update: Partial<Game>, current?: Game): Prom
 }
 
 
-export const getSetList = () => queryDB({ query: setQuery }, normalizeSet, 'sets')
+export const getSetList = () => queryDB({ query: setQuery, variables: { take: 100 } }, 'sets', normalizeSet)
 
-export const getSetCards = (setCode: CardSet['code']) => queryDB({ query: cardQuery, variables: { setCode } }, normalizeCard, 'sets.0.cards')
+export const getSetCards = (setCode: CardSet['code']) => queryDB({ query: cardQuery, variables: { setCode } }, 'sets.0.cards', normalizeCard)
 
 export async function storeCardImage(card: Partial<Card>): Promise<void> {
   if (!card.img) throw new Error('Cannot create an image with no name: '+card.id)

@@ -62,10 +62,10 @@ cardQuery: TypedDocumentNode<Query> = gql`
 `,
 
 setQuery: TypedDocumentNode<Query> = gql`
-  query {
+  query Sets($take: Int, $skip: Int) {
     sets(
       input: { type: "expansion" },
-      page: {},
+      page: { take: $take, skip: $skip },
       order: { order: ASC }
     )
     {

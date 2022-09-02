@@ -23,13 +23,23 @@ export async function fetchData(url: string, toType: "object"|"blob"|"text"|"buf
 }
 
 export async function queryDB(queryOptions: QueryOptions): Promise<any[]>
-export async function queryDB<Type>(queryOptions: QueryOptions, normalizeCb: Normalizer<Type>, dataPath?: string): Promise<Type[]>
-export async function queryDB<Type>(queryOptions: QueryOptions, normalizeCb?: Normalizer<Type>, dataPath: string = ''): Promise<Type[] | any[]> {
-  const result = await gqlClient.query(queryOptions)
-  if (result.errors && result.errors.length) throw new Error(`Apollo Query Error(s)[${result.errors.length}]: ${result.errors.map(String).join(', ')}`)
-  if (normalizeCb) return filterQuery(objPath.get(result.data, dataPath), normalizeCb)
-  if (Array.isArray(result.data)) return result.data
-  return [] as any[]
+export async function queryDB<Type>(queryOptions: QueryOptions, dataPath: string, normalizeCb: Normalizer<Type>): Promise<Type[]>
+export async function queryDB<Type>(queryOptions: QueryOptions, dataPath: string = '', normalizeCb?: Normalizer<Type>): Promise<Type[] | any[]> {
+  let result = [] as any[], next
+  while(next = await gqlClient.query(queryOptions)) {
+    if (next.errors && next.errors.length) throw new Error(`Apollo Query Error(s)[${next.errors.length}]: ${next.errors.map(String).join(', ')}`)
+
+    next = next && next.data && objPath.get(next.data, dataPath)
+    if (next == null) throw new Error(`Apollo Query returned null with no error, check objPath ("${dataPath}") is accurate.`)
+    if (normalizeCb) next = filterQuery(next, normalizeCb)
+    if (!Array.isArray(next)) throw new Error(`Apollo Query returned non-array with no error (${next}), check objPath ("${dataPath}") is accurate.`)
+    if (!next.length) break
+    result = result.concat(next)
+
+    if (!queryOptions.variables || !('take' in queryOptions.variables)) break
+    queryOptions.variables.skip = queryOptions.variables.take + (queryOptions.variables.skip || 0)
+  }
+  return result
 }
 
 export declare type Normalizer<Type> = (data: any) =>  Type | null
