@@ -22,7 +22,7 @@ export interface CardSet {
 }
 
 export interface GameCard {
-  id: number,
+  id?: number,
   date: DateType,
   position: number,
   cardId: CardIDType,
@@ -32,4 +32,9 @@ export interface Game {
   date: DateType,
   setCode: SetCodeType,
   art?: string,
+}
+
+export interface GameCardJoined extends Card {
+  date: GameCard['date'],
+  position: GameCard['position'],
 }

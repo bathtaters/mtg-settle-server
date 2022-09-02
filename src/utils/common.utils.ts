@@ -9,6 +9,7 @@ export interface TestRules<Type extends object> {
   notEquals?: Partial<Type>,
 }
 
+export const sqlArray = (arr: any[]) => `(${arr.map(() => "?").join(",")})`
 
 export function toObject(data: string): GenericObject | null {
   if (typeof data !== 'string') return null

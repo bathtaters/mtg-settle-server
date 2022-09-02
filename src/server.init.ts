@@ -1,5 +1,5 @@
 import express from 'express'
-import updateRoutes from './routes/manager'
+import updateRoutes from './routes/manager.routes'
 import { gui } from './config/urls.cfg'
 
 function startup(server: express.Application) {
