@@ -1,0 +1,9 @@
+td > svg, .svg-style {
+  width: 2rem;
+  fill: var(--fore-color);
+  stroke: var(--fore-color);
+  align-self: end;
+}
+
+table.horizontal.smallhdr thead { flex-grow: 0; }
+table.horizontal.smallhdr tbody { flex-grow: 1; }

@@ -1,0 +1,90 @@
+extends ../../engine/views/components/container
+
+include ../../engine/views/components/form.mixins.pug
+
+block header
+  link(rel='stylesheet', href='/stylesheets/custom-styles.css')
+
+block scripts
+  script(src="/javascripts/game.client.js")
+
+block content
+  .container
+    .row.relative
+      h3.col-sm Game: #{game.date}
+      a.button.rop-right(href=baseURL) Back
+
+    h4.row.baseline.relative
+      b Solution:
+      span &nbsp;#{solution.name} [#{game.setCode}]
+      if solution.block
+        i &nbsp;(Block: #{solution.block})
+      if game.art
+        .col.svg-style.marginX!= game.art
+    
+    hr
+
+    form.plain(method="POST" action=baseURL+urls.gui.manage.game+urls.gui.manage.form)
+      fieldset
+        legend Edit Game
+        .row
+          .input-group.vertical.button-input
+            +formInput('date', 'hidden', null, game.date)
+
+            label.tooltip(for="position" aria-label="Change a single card") Update one card:
+            .button-group
+
+              select#position(name="position")
+                each card in cards
+                  option(for="position" value=card.position) #{card.position}: #{card.name}
+              
+              input.button(type="submit" name="_action" value="Replace With:")
+              
+              select#newCard(name="newCard")
+                each card in allCards
+                  option(for="newCard" value=card.id data-preview=cardImageURI(card))= card.name
+              
+              input.button#randomCard(type="button" value="Random")
+              
+              a.button#previewCard(target="_blank") Preview
+        
+        .row
+          .input-group.vertical.button-input
+            label.tooltip(aria-label="Randomize all cards OR entire game") Randomize all:
+            .button-group
+              input.button(type="submit" value="Cards" name="_action")
+              input.button(type="submit" value="Game"  name="_action")
+
+          +buttonInput(
+            'newSet', allSets, 'Choose Set', null, solution.setCode,
+            null, 'Update solution:', 'Change the solution to a new set (w/ random cards)',
+            '_action', 'submit'
+          )
+
+          +buttonInput(
+            '', null, 'Delete', null, null,
+            null, 'Delete game:', 'Delete this game entirely',
+            '_action', 'submit'
+          )
+
+          if csrfToken
+            span: +formInput('_csrf', 'hidden', null, csrfToken)
+
+    hr
+
+    table.striped.horizontal.smallhdr
+      caption Cards
+      thead
+        tr
+          each val in ['Pos.', 'Name', 'Image', 'Detail']
+            th= val
+      tbody
+        each card in cards
+          tr.tableRow
+            td(data-label='Position')= card.position
+            td(data-label='Name'): a(href=cardImageURI(card) target="_blank")= card.name
+            td(data-label='Image'): img.cardImg(src="#" alt="Card "+card.position title="Card "+card.position id="card"+card.position)
+            td(data-label='Detail')
+              div= card.type
+              div: i Artist: #{card.artist}
+              .dims(id="dims"+card.position)
