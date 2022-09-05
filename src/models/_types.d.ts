@@ -3,6 +3,7 @@ export type SetCodeType = string
 export type CardIDType = string
 
 export interface Card {
+  number:     number,
   id:         CardIDType,
   scryfallId: CardIDType,
   setCode:    SetCodeType,
@@ -10,6 +11,7 @@ export interface Card {
   artist:     string,
   type:       string,
   img?:       string,
+  url?:       string,
 }
 
 export interface CardSet {

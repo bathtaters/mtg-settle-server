@@ -2,9 +2,6 @@ extends ../../engine/views/components/container
 
 include ../../engine/views/components/form.mixins.pug
 
-block header
-  link(rel='stylesheet', href='/stylesheets/custom-styles.css')
-
 block scripts
   script(src="/javascripts/game.client.js")
 
@@ -47,6 +44,15 @@ block content
               input.button#randomCard(type="button" value="Random")
               
               a.button#previewCard(target="_blank") Preview
+            
+            .button-group
+              select#swapA(name="swapA")
+                each card in cards
+                  option(for="swapA" value=card.position) #{card.position}: #{card.name}
+              input.button(type="submit" name="_action" value="Swap With:")
+              select#swapB(name="swapB")
+                each card in cards
+                  option(selected=(card.position === 1) for="swapB" value=card.position) #{card.position}: #{card.name}
         
         .row
           .input-group.vertical.button-input
@@ -74,17 +80,24 @@ block content
 
     table.striped.horizontal.smallhdr
       caption Cards
-      thead
+      thead.cardDetail
         tr
-          each val in ['Pos.', 'Name', 'Image', 'Detail']
-            th= val
+          th Pos.
+          th Name
+          th.large Image
+          th.cardDetail Detail
       tbody
         each card in cards
           tr.tableRow
             td(data-label='Position')= card.position
             td(data-label='Name'): a(href=cardImageURI(card) target="_blank")= card.name
-            td(data-label='Image'): img.cardImg(src="#" alt="Card "+card.position title="Card "+card.position id="card"+card.position)
-            td(data-label='Detail')
+            td.large.cardImg(data-label='Image')
+              img(
+                src=(card.url && imageUrl(card.url, true, { height: 0.5, width: 0.5 }))
+                alt=`Card ${card.position}` id=`card${card.position}`
+                title=`Card ${card.position}` crossorigin=true
+              )
+            td.cardDetail(data-label='Detail')
               div= card.type
               div: i Artist: #{card.artist}
-              .dims(id="dims"+card.position)
+              .imgDetail Size unknown

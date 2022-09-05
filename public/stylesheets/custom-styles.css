@@ -1,3 +1,10 @@
+/* shrink/color SVGs */
+.imgDetail {
+  opacity: 75%;
+  font-style: italic;
+  font-size: small;
+}
+/* shrink/color SVGs */
 td > svg, .svg-style {
   width: 2rem;
   fill: var(--fore-color);
@@ -5,5 +12,14 @@ td > svg, .svg-style {
   align-self: end;
 }
 
+/* shrink horizontal table header */
 table.horizontal.smallhdr thead { flex-grow: 0; }
 table.horizontal.smallhdr tbody { flex-grow: 1; }
+
+/* align horizontal table "Images" */
+th.large, td.large { flex-grow: 1; }
+
+/* align horizontal table "Details" */
+thead.cardDetail > tr:first-child { overflow-x: scroll; }
+th.cardDetail { margin-bottom: 0.125rem; }
+th.cardDetail, td.cardDetail { height: 4rem; }

@@ -1,20 +1,31 @@
 import { Card, CardSet, Game } from "../models/_types"
 import { fetchData, queryDB }  from '../libs/fetch'
-import { storeImage, renameImage, deleteImage } from '../libs/storage'
+import { storeImage, deleteImage, pathToUrl } from '../libs/storage'
 import { normalizeCard, normalizeSet } from "../utils/fetch.utils"
 import { cardQuery, setQuery, setInfoURI, setSymbolKey, cardImageURI } from "../config/fetch.cfg"
+import Model from "../../engine/models/Model"
 
 export async function updateCardImage(update: Partial<Card>, current?: Card): Promise<void> {
   if (!current) {
-    if (!update.scryfallId) delete update.img
+    if (!update.scryfallId) {
+      delete update.img
+      delete update.url
+    }
     if (!update.img) return
-    return storeCardImage(update)
+    await storeCardImage(update)
+    return
   }
 
   if (!('img' in update) || update.img === current.img) return
-  if (update.img  &&  current.img) return renameImage(current.img, update.img)
-  if (!update.img &&  current.img) return deleteImage(current.img)
-  if (!current.img  && update.img) return storeCardImage(current)
+  if (update.img   && current.img) throw new Error('Card image FileID cannot be modified, can only be generated or deleted.')
+  if (!update.img  && current.img) return deleteImage(current.img).then(() => {
+    update.img = undefined
+    update.url = undefined
+  })
+  if (!current.img &&  update.img) return storeCardImage({ ...current, ...update }).then(({ img, url }) => {
+    update.img = img
+    update.url = url
+  })
 }
 
 export async function updateGameSet(update: Partial<Game>, current?: Game): Promise<void> {
@@ -27,9 +38,25 @@ export const getSetList = () => queryDB({ query: setQuery, variables: { take: 10
 
 export const getSetCards = (setCode: CardSet['code']) => queryDB({ query: cardQuery, variables: { setCode } }, 'sets.0.cards', normalizeCard)
 
-export async function storeCardImage(card: Partial<Card>): Promise<void> {
-  if (!card.img) throw new Error('Cannot create an image with no name: '+card.id)
-  return storeImage(cardImageURI(card), card.img)
+export async function storeCardImage(card: Card): Promise<Card>
+export async function storeCardImage(card: Partial<Card>): Promise<Partial<Card>>
+export async function storeCardImage(card: Card|Partial<Card>): Promise<Card|Partial<Card>> {
+  const source = cardImageURI(card)
+  if (!source) throw new Error('Cannot determine image source to store: '+JSON.stringify(card))
+  const img = await storeImage(source)
+  card.img = img.img
+  card.url = img.url
+  return card
+}
+
+export async function deleteCardImage(card: Card|Partial<Card>, Model?: Model<Card>): Promise<Card|Partial<Card>> {
+  if (Model && !card.id) throw new Error('Must include CardID in order to delete image: '+JSON.stringify(card))
+  if (!card.img) throw new Error('Cannot determine image ID to delete: '+JSON.stringify(card))
+  await deleteImage(card.img)
+  if (Model) await Model.update(card.id, { img: undefined, url: undefined }, 'id')
+  delete card.img
+  delete card.url
+  return card
 }
 
 export async function getSetImage(setCode: CardSet['code']): Promise<Game['art']> {
@@ -42,4 +69,4 @@ export async function getSetImage(setCode: CardSet['code']): Promise<Game['art']
   return fetchData(setInfo[setSymbolKey]) || undefined
 }
 
-export { storeImage, renameImage, deleteImage }
+export { pathToUrl }

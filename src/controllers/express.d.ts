@@ -25,11 +25,13 @@ export interface ManagerForm {
 }
 
 export interface GameForm {
-  _action: "Replace With:"|"Cards"|"Game"|"Choose Set"|"Delete",
+  _action: "Replace With:"|"Swap With:"|"Cards"|"Game"|"Choose Set"|"Delete",
   date: string,
   position?: number|string,
   newCard?: string,
   newSet?: string,
+  swapA?: number|string,
+  swapB?: number|string,
   _csrf?: string,
 }
 

@@ -1,8 +1,7 @@
-import { randomUUID } from 'crypto'
 import Model from '../../engine/models/Model'
 import { Feedback } from '../../engine/models/Model.d'
 import { Card } from './_types'
-import { getSetCards, storeCardImage, updateCardImage, deleteImage } from '../services/fetch.services'
+import { getSetCards, updateCardImage, deleteCardImage } from '../services/fetch.services'
 import { cardID, setCode } from './schema.shared'
 import { sqlArray } from '../utils/common.utils'
 import * as errors from '../config/errors'
@@ -10,13 +9,15 @@ import * as errors from '../config/errors'
 class Cards extends Model<Card> {
   constructor() {
     super('cards', {
+      number:  { typeStr: "int?", limits: { min: 0, max: 10000 } },
       id: { isPrimary: true, ...cardID },
       scryfallId: { ...cardID },
       setCode: { ...setCode },
-      name:    { typeStr: "string*", limits: { min:  0, max: 100 } },
-      artist:  { typeStr: "string*", limits: { min:  0, max: 100 } },
-      type:    { typeStr: "string*", limits: { min:  0, max: 500 } },
-      img:     { typeStr: "uuid?",   limits: { min: 36, max:  36 } },
+      name:    { typeStr: "string*", limits: { min: 0, max: 100 } },
+      artist:  { typeStr: "string*", limits: { min: 0, max: 100 } },
+      type:    { typeStr: "string*", limits: { min: 0, max: 500 } },
+      img:     { typeStr: "string?", limits: { min: 0, max:  50 } },
+      url:     { typeStr: "string?", limits: { min: 0, max:  50 }, html: 'readonly' },
     })
   }
 
@@ -30,12 +31,12 @@ class Cards extends Model<Card> {
   }
 
   async remove(id: Card[keyof Card], idKey?: keyof Card): Promise<Feedback> {
-    await this.clearImages([id], idKey)
+    await this.clearImages([id], idKey, false, true)
     return super.remove(id, idKey)
   }
 
   async batchRemove(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false): Promise<Feedback> {
-    await this.clearImages(idList, idKey, invert)
+    await this.clearImages(idList, idKey, invert, true)
     return super.custom<void>(`DELETE FROM ${this.title} WHERE ${idKey || this.primaryId} ${invert ? 'NOT ' : ''}IN ${sqlArray(idList)}`, idList)
       .then(() => ({ success: true }))
   }
@@ -56,27 +57,32 @@ class Cards extends Model<Card> {
     return super.batchAdd(setCards, overwrite ? 'overwrite' : 'skip')
   }
 
-  async getImage(id: Card[keyof Card], idKey?: keyof Card): Promise<Card['img']>  {
-    const existing = await super.get(id, idKey)
-    if (!existing) throw errors.noEntry(id)
-    if (existing.img) return existing.img
-
-    const img = randomUUID()
-    await storeCardImage({ ...existing, img })
-    await super.update(existing.id, { img })
-    return img
-  }
-
-  async clearImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false): Promise<Feedback> {
+  async getImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false): Promise<void>  {
     if (idKey && !Object.keys(this.schema).includes(idKey)) throw errors.badKey(idKey, this.title)
-    
-    const imgs: Partial<Card>[] = await super.custom<{ img: Required<Card["img"]> }>(
-      `SELECT img FROM ${this.title} WHERE ${idKey || this.primaryId} ${invert ? 'NOT ' : ''}IN ${sqlArray(idList)} AND img IS NOT NULL`,
+
+    const cards = await super.custom<Card>(
+      `SELECT * FROM ${this.title} WHERE ${idKey || this.primaryId} ${invert ? 'NOT ' : ''}IN ${sqlArray(idList)}`,
       idList, true
     )
-    for (const data of imgs) { if (data.img) await deleteImage(data.img) }
+    if (!cards.length) throw errors.noEntry(idList.join(','))
+    
+    await Promise.all([cards.map(({ id, img }) => img ? Promise.resolve() : this.update(id, { img: 'add' }))])
+  }
+
+  async clearImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false, skipDbUpdate: boolean = true): Promise<Feedback> {
+    if (idKey && !Object.keys(this.schema).includes(idKey)) throw errors.badKey(idKey, this.title)
+    
+    const cards: Partial<Card>[] = await super.custom<{ id: Card["id"], img: Required<Card["img"]> }>(
+      `SELECT id, img FROM ${this.title} WHERE ${idKey || this.primaryId} ${invert ? 'NOT ' : ''}IN ${sqlArray(idList)} AND img IS NOT NULL`,
+      idList, true
+    )
+    for (const card of cards) {
+      if (card.img) await deleteCardImage(card, skipDbUpdate ? undefined : this)
+    }
     return { success: true }
   }
 }
 
 export default new Cards()
+
+export interface ImageURLs { [id: Card["id"]]: string }

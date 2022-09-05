@@ -32,7 +32,8 @@ export const normalizeSet: Normalizer<CardSet> = (set: any) => {
 const validCard = (card: any): card is Required<GQLCard> => card && card.identifiers &&
   typeof card.uuid   === 'string' && typeof card.identifiers.scryfallId === 'string' && 
   typeof card.name   === 'string' && typeof card.setCode                === 'string' &&
-  typeof card.artist === 'string' && typeof card.type                   === 'string'
+  typeof card.artist === 'string' && typeof card.type                   === 'string' &&
+  typeof card.number === 'string'
 
 // @ts-ignore // Using GQLCard guard to help show types overrides ts-common-sense
 export const normalizeCard: Normalizer<Card> = (card: any) => {
@@ -43,6 +44,7 @@ export const normalizeCard: Normalizer<Card> = (card: any) => {
   if(testObject(card, ...ignoreCards)) return null
 
   return {
+    number: card.number && !isNaN(+card.number) ? +card.number : null,
     id: card.uuid,
     name: card.name,
     artist: card.artist,
@@ -50,4 +52,21 @@ export const normalizeCard: Normalizer<Card> = (card: any) => {
     scryfallId: card.identifiers?.scryfallId,
     type: card.type,
   }
+}
+
+
+
+let prevReq = {} as { [key: string]: number }
+
+export function delayRequest(minSpacingMs: number, key: string): Promise<void> {
+  if (!minSpacingMs) return Promise.resolve()
+
+  const diff = new Date().getTime() - (prevReq[key] || 0)
+  
+  if (diff > minSpacingMs) {
+    prevReq[key] = diff + (prevReq[key] || 0)
+    return Promise.resolve()
+  }
+  prevReq[key] = minSpacingMs + (prevReq[key] || 0)
+  return new Promise((res) => setTimeout(res, minSpacingMs - diff))
 }

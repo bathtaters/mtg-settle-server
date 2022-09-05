@@ -13,6 +13,13 @@ export const gameURL = (date: string) => `${gui.basic.prefix}${gui.manage.prefix
 export async function addGameCards(date: string, setCode: string, ifExists?: IfExistsBehavior) {
   const gameCards = await Cards.getRandomIds(cardsPerGame, setCode)
   await GameCards.batchAdd(gameCards.map((cardId, position) => ({ date, position, cardId })), ifExists)
+  await Cards.getImages(gameCards)
+}
+
+export async function updateGameCard(date: string, position: number, cardId: string) {
+  await GameCards.batchUpdate({ date, position }, { cardId }, async (update, current) => { await Promise.all([
+    Cards.clearImages([current.cardId]), Cards.getImages([update.cardId])
+  ]) })
 }
 
 export async function setGame(date: string, overwrite?: boolean, setCode?: string) {
@@ -30,11 +37,11 @@ export async function setGame(date: string, overwrite?: boolean, setCode?: strin
 
 
 export async function deleteGame(date: string) {
-  const game = await Games.get(date, 'date')
-  if (!game) throw new Error(`Error deleting game ${date}: Game not found`)
+  const cards = await GameCards.find({ date }, false)
+  if (cards.length) await Cards.clearImages(cards.map(({ cardId }) => cardId))
 
-  await GameCards.remove(game.date, 'date')
-  await Games.remove(game.date, 'date')
+  await Games.remove(date, 'date')
+  await GameCards.remove(date, 'date')
 }
 
 
@@ -52,6 +59,6 @@ export async function cleanDb(skip: CleanupType[] = []) {
 
   if (!skip.includes('cardImages')) {
     const gameCards = await GameCards.get().then((cards) => cards.map(({ cardId }) => cardId))
-    await Cards.clearImages(gameCards, 'id', true)
+    await Cards.clearImages(gameCards, undefined, true)
   }
 }

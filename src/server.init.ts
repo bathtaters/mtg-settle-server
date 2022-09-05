@@ -1,9 +1,10 @@
 import express from 'express'
 import updateRoutes from './routes/manager.routes'
+import { pathToUrl } from './libs/storage'
 import { gui } from './config/urls.cfg'
 
 function startup(server: express.Application) {
-  // Add code to execute just before server starts
+  server.locals.imageUrl = pathToUrl
 }
 
 function teardown() {

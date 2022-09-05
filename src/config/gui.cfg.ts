@@ -51,6 +51,7 @@ jsonPaths = [
 // Helmet options
 guiCSP = {
   defaultSrc: ["'self'"],
+  imgSrc: ["'self'", 'ik.imagekit.io', 'data:'],
   scriptSrc: ["'self'", jquery.src],
   styleSrc: ["'self'", "'unsafe-inline'", minicss.href],
   upgradeInsecureRequests: isSecure ? [] : null,

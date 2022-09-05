@@ -1,11 +1,26 @@
-export async function storeImage(imageURL: string, filename: string): Promise<void> {
-  throw new Error('storeImage not implemented')
+import ImageKit from "imagekit"
+import { UrlOptions, Transformation } from "imagekit/dist/libs/interfaces"
+import { delayRequest } from '../utils/fetch.utils'
+// @ts-ignore // resolveJsonModule is true in tsconfig
+import { ikOptions } from '../config/credentials.json'
+
+const imagekit = new ImageKit(ikOptions.connection)
+
+export async function storeImage(imageURL: string): Promise<ImageDetail> {
+  await delayRequest(ikOptions.minRequestInterval, 'scryfall')
+  const res = await imagekit.upload({ file: imageURL, ...ikOptions.upload })
+  return { img: res.fileId, url: res.filePath }
 }
 
-export async function renameImage(oldName: string, newName: string): Promise<void> {
-  throw new Error('renameImage not implemented')
+export async function deleteImage(fileId: string): Promise<void> {
+  await imagekit.deleteFile(fileId).catch((err) => console.error('ImageKit Delete ',fileId,'ERROR',err))
 }
 
-export async function deleteImage(filename: string): Promise<void> {
-  throw new Error('deleteImage not implemented')
+export function pathToUrl(path: string, publicLink: boolean = true, resize?: Transformation) {
+  let options = { path } as UrlOptions
+  if (publicLink && ikOptions.publicEndpoint) options.urlEndpoint = ikOptions.publicEndpoint
+  if (resize) options.transformation = [resize]
+  return imagekit.url(options)
 }
+
+export declare type ImageDetail = { img: string, url: string }
