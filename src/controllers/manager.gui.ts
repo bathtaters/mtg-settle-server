@@ -21,7 +21,7 @@ export const homeController: GuiHandler = async (req, res, next) => {
       title: 'Management Console',
       user: req.user && req.user.username,
       isAdmin: req.user && hasAccess(req.user.access, access.admin),
-      csrfToken: req.csrfToken(),
+      csrfToken: req.csrfToken && req.csrfToken(),
       setList,
       gameList,
       cardSets,
@@ -42,14 +42,14 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
 
     const cards = await GameCards.getCards(game.date, Cards)
 
-    const allCards = await Cards.find({ setCode: game.setCode }, false)
+    const allCards = await Cards.find({ setCode: game.setCode }, false, 'number')
     const allSets = await Sets.get().then((sets) => sets.filter(({ skip }) => !skip).map(({ code }) => code))
 
     return res.render('game', {
       title: 'Game Editor',
       user: req.user && req.user.username,
       isAdmin: req.user && hasAccess(req.user.access, access.admin),
-      csrfToken: req.csrfToken(),
+      csrfToken: req.csrfToken && req.csrfToken(),
       game,
       solution,
       cards,
