@@ -2,10 +2,14 @@ import { Router } from 'express'
 import { homeController, gameController } from '../controllers/manager.gui'
 import { homeForm, gameForm } from '../controllers/manager.actions'
 import { gameURL } from '../services/manager.services'
-import { gui } from '../config/urls.cfg'
+import { checkAuth } from '../../engine/middleware/auth.middleware'
 import { isIsoDate } from '../utils/game.utils'
+import { access } from '../../engine/config/users.cfg'
+import { gui } from '../config/urls.cfg'
 
 const router = Router()
+
+router.use(checkAuth(gui.root.login, access.gui))
 
 router.post(gui.manage.form, homeForm)
 router.post(gui.manage.game+gui.manage.form, gameForm)
