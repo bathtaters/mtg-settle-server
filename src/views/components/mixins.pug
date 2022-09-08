@@ -1,0 +1,10 @@
+include ../../../engine/views/components/form.mixins.pug
+
+//- SIGNATURES:
+  mixin typedInp(key, inpType, limits, defaultValue, classes, readonly)
+  mixin formInput(key, inpType, limits, defaultValue, label, classes, tooltip, readonly)
+  mixin checkboxes(key, rows, label, columns, defaults)
+  mixin buttonInput(key, inpType, button, limits, defaultValue, url, label, tooltip, buttonKey = '_action', buttonType = 'button')
+  mixin buttonRow(buttons, classes = {}, urls = {}, key = '_action', buttonType = 'submit')
+  mixin pageData(page, size, id = '_pageData', pageKey = 'page', sizeKey = 'size')
+  mixin pageNav(page, size, total, sizes, prev = '<', next = '>', pageKey = 'page', sizeKey = 'size')
