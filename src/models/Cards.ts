@@ -1,9 +1,11 @@
+import logger from '../../engine/libs/log'
 import Model from '../../engine/models/Model'
 import { Feedback, IfExistsBehavior } from '../../engine/models/Model.d'
 import { Card } from './_types'
 import { getSetCards, updateCardImage, deleteCardImage } from '../services/fetch.services'
 import { cardID, setCode } from './schema.shared'
 import { sqlArray } from '../utils/common.utils'
+import { multiUpdate } from '../config/sql.constants'
 import * as errors from '../config/errors'
 
 class Cards extends Model<Card> {
@@ -60,13 +62,25 @@ class Cards extends Model<Card> {
   async getImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false): Promise<void>  {
     if (idKey && !Object.keys(this.schema).includes(idKey)) throw errors.badKey(idKey, this.title)
 
-    const cards = await super.custom<Card>(
+    let cards = await super.custom<Card>(
       `SELECT * FROM ${this.title} WHERE ${idKey || this.primaryId} ${invert ? 'NOT ' : ''}IN ${sqlArray(idList)}`,
       idList, true
     )
     if (!cards.length) throw errors.noEntry(idList.join(','))
     
-    await Promise.all(cards.map(({ id, img }) => img ? Promise.resolve() : this.update(id, { img: 'add' })))
+    cards = cards.filter(({ img }) => !img)
+    for (let card of cards) {
+      card.img = 'add'
+      await updateCardImage(card)
+    }
+
+    const sqlData = multiUpdate(this.title, this.primaryId, cards, ['img','url'])
+    if (!sqlData) {
+      logger.verbose(`No new images needed to be uploaded for ${idKey || this.primaryId}: ${idList.join(',')}`)
+      return
+    }
+
+    await super.custom(sqlData[0], sqlData[1], true)
   }
 
   async clearImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false, skipDbUpdate: boolean = true): Promise<Feedback> {
