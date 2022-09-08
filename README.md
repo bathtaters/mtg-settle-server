@@ -28,3 +28,4 @@ Backend for [Settle](https://github.com/bathtaters/mtg-settle) _(Magic: the Gath
  - Schedule services to run daily (populate upcoming games, archive old games)
     - Schedule databases to update Weekly
  - Add request logs (Include IP, API Key, frontend session ID, request data, timestamp)
+ - Fix management/game GUI on Firefox (Including photo sizes, also broken on Safari)
