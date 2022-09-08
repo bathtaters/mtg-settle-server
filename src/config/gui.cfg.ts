@@ -5,7 +5,7 @@ import { jquery, minicss, gui as guiUrl } from './urls.cfg'
 
 const year = (startYear: number, endYear?: number) => !endYear || startYear >= endYear ? endYear : `${startYear} - ${endYear}`
 
-export const title = capitalizeHyphenated(name)
+export const title = 'MtG Settle - Server'
 export const pageOptions = {
   defaultSize: 100,
   sizeList: [5, 10, 25, 50, 100],
