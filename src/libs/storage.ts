@@ -13,8 +13,14 @@ export async function storeImage(imageURL: string): Promise<ImageDetail> {
   return { img: res.fileId, url: res.filePath }
 }
 
-export async function deleteImage(fileId: string): Promise<void> {
-  await imagekit.deleteFile(fileId).catch((err) => logger.error(`ImageKit Delete ERROR: <${fileId}> ${err.message}`))
+export async function deleteImage(fileIds: string | string[]): Promise<void> {
+  try {
+    if (Array.isArray(fileIds)) await imagekit.bulkDeleteFiles(fileIds)
+    else await imagekit.deleteFile(fileIds)
+  } catch (err) {
+    // @ts-ignore
+    logger.error(`ImageKit Delete ERROR: <${Array.isArray(fileIds) ? 'BULK' : fileIds}> ${err?.message}`)
+  }
 }
 
 export function pathToUrl(path: string, publicLink: boolean = true, resize?: Transformation) {
@@ -22,6 +28,11 @@ export function pathToUrl(path: string, publicLink: boolean = true, resize?: Tra
   if (publicLink && ikOptions.publicEndpoint) options.urlEndpoint = ikOptions.publicEndpoint
   if (resize) options.transformation = [resize]
   return imagekit.url(options)
+}
+
+export function listIds() {
+  return imagekit.listFiles(ikOptions.upload.folder ? { path: `/${ikOptions.upload.folder}/` } : {})
+    .then((files) => files.map(({ fileId }) => fileId))
 }
 
 export declare type ImageDetail = { img: string, url: string }

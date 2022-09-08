@@ -2,8 +2,10 @@ import { CleanupType } from '../controllers/express'
 import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
+import { deleteImage, listIds } from './fetch.services'
 import { getRandomEntry } from '../utils/game.utils'
-import { cardsPerGame } from '../config/game.cfg'
+import { arrayDifferences } from '../utils/common.utils'
+import { cardsPerGame, clearOlderThan } from '../config/game.cfg'
 import { gui } from '../config/urls.cfg'
 
 export const gameURL = (date: string) => `${gui.basic.prefix}${gui.manage.prefix}${gui.manage.game}/${date}`
@@ -45,17 +47,21 @@ export async function deleteGame(date: string) {
 
 export async function cleanDb(skip: CleanupType[] = []) {
   if (!skip.includes('games')) {
-    const twoDaysAgo = new Date(new Date().getTime() - (2*24*60*60*1000)).toJSON().slice(0,10)
-    await Games.removeOlder(twoDaysAgo)
+    await Games.removeOlder(new Date(new Date().getTime() - clearOlderThan).toJSON().slice(0,10))
   }
-
+  
   if (!skip.includes('setCards')) {
     const gameSets = await Games.get().then((games) => games.map(({ setCode }) => setCode))
     await Cards.batchRemove(gameSets, 'setCode', true)
   }
 
   if (!skip.includes('cardImages')) {
-    const gameCards = await Games.cardsTable.get().then((cards) => cards.map((data) => data.val))
+    const gameCards = await Games.cardsTable.get().then((cards) => cards.map(({ val }) => val))
     await Cards.clearImages(gameCards, undefined, true)
+    
+    const cardLists = await Promise.all([Cards.listImageIds(), listIds()])
+    const [imglessCards, cardlessImgs] = arrayDifferences<string>(...cardLists)
+    if (cardlessImgs?.length) await deleteImage(cardlessImgs)
+    if (imglessCards?.length) await Cards.getImages(imglessCards, 'img', false, true)
   }
 }

@@ -59,7 +59,12 @@ class Cards extends Model<Card> {
     return super.batchAdd(setCards, overwrite ? 'overwrite' : 'skip')
   }
 
-  async getImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false): Promise<void>  {
+  async listImageIds(): Promise<string[]> {
+    return super.custom<{ img: string }>(`SELECT img FROM ${this.title} WHERE img IS NOT NULL`)
+      .then((cards) => cards.map(({ img }) => img))
+  }
+
+  async getImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false, overwrite: boolean = false): Promise<void>  {
     if (idKey && !Object.keys(this.schema).includes(idKey)) throw errors.badKey(idKey, this.title)
 
     let cards = await super.custom<Card>(
@@ -68,7 +73,7 @@ class Cards extends Model<Card> {
     )
     if (!cards.length) throw errors.noEntry(idList.join(','))
     
-    cards = cards.filter(({ img }) => !img)
+    if (!overwrite) cards = cards.filter(({ img }) => !img)
     for (let card of cards) {
       card.img = 'add'
       await updateCardImage(card)
@@ -83,7 +88,7 @@ class Cards extends Model<Card> {
     await super.custom(sqlData[0], sqlData[1], true)
   }
 
-  async clearImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false, skipDbUpdate: boolean = true): Promise<Feedback> {
+  async clearImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false, skipDbUpdate: boolean = false): Promise<Feedback> {
     if (idKey && !Object.keys(this.schema).includes(idKey)) throw errors.badKey(idKey, this.title)
     
     const cards: Partial<Card>[] = await super.custom<{ id: Card["id"], img: Required<Card["img"]> }>(

@@ -1,6 +1,6 @@
 import { Card, CardSet, Game } from "../models/_types"
 import { fetchData, queryDB }  from '../libs/fetch'
-import { storeImage, deleteImage, pathToUrl } from '../libs/storage'
+import { storeImage, deleteImage, pathToUrl, listIds } from '../libs/storage'
 import { normalizeCard, normalizeSet } from "../utils/fetch.utils"
 import { cardQuery, setQuery, setInfoURI, setSymbolKey, cardImageURI } from "../config/fetch.cfg"
 import Model from "../../engine/models/Model"
@@ -71,4 +71,4 @@ export async function getSetImage(setCode: CardSet['code']): Promise<Game['art']
   return fetchData(setInfo[setSymbolKey]) || undefined
 }
 
-export { pathToUrl }
+export { pathToUrl, listIds, deleteImage }

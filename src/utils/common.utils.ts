@@ -9,6 +9,13 @@ export interface TestRules<Type extends object> {
   notEquals?: Partial<Type>,
 }
 
+
+export const arrayDifferences = <Elem = any>(arrA: Elem[], arrB: Elem[]) => [
+  arrA.filter((a) => !arrB.includes(a)),
+  arrB.filter((b) => !arrA.includes(b)),
+]
+
+
 export const sqlArray = (arr: any[]) => `(${arr.map(() => "?").join(",")})`
 
 export function toObject(data: string): GenericObject | null {
