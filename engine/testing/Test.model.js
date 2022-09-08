@@ -17,6 +17,7 @@ module.exports = new Model('test', {
   comment: {
     typeStr: "string*?",
     limits: { min: 0, max: 1000 },
+    isHTML: true,
   },
   isOn: {
     typeStr: "boolean",
@@ -25,6 +26,10 @@ module.exports = new Model('test', {
   testDate: {
     typeStr: "datetime?",
     default: "2000-01-02T00:00",
+  },
+  numbers: {
+    typeStr: "int[]",
+    limits: { array: { min: 0, max: 20 }, elem: { min: -10, max: 10 } },
   },
   objectList: {
     typeStr: "object[]?",
