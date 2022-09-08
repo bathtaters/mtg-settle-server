@@ -1,5 +1,5 @@
 import Model from '../../engine/models/Model'
-import { Feedback } from '../../engine/models/Model.d'
+import { Feedback, IfExistsBehavior } from '../../engine/models/Model.d'
 import { Card } from './_types'
 import { getSetCards, updateCardImage, deleteCardImage } from '../services/fetch.services'
 import { cardID, setCode } from './schema.shared'
@@ -21,9 +21,9 @@ class Cards extends Model<Card> {
     })
   }
 
-  async add(data: Card): Promise<Card> {
+  async add(data: Card, ifExists: IfExistsBehavior): Promise<Card> {
     await updateCardImage(data)
-    return super.add(data)
+    return super.add(data, ifExists)
   }
 
   update(id: Card[keyof Card], data: Partial<Card>, idKey?: keyof Card): Promise<Feedback> {
@@ -66,7 +66,7 @@ class Cards extends Model<Card> {
     )
     if (!cards.length) throw errors.noEntry(idList.join(','))
     
-    await Promise.all([cards.map(({ id, img }) => img ? Promise.resolve() : this.update(id, { img: 'add' }))])
+    await Promise.all(cards.map(({ id, img }) => img ? Promise.resolve() : this.update(id, { img: 'add' })))
   }
 
   async clearImages(idList: Card[keyof Card][], idKey?: keyof Card, invert: boolean = false, skipDbUpdate: boolean = true): Promise<Feedback> {

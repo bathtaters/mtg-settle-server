@@ -2,7 +2,6 @@ import { GuiHandler } from './express'
 import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
-import GameCards from '../models/GameCards'
 
 import { isIsoDate } from '../utils/game.utils'
 import { cardImageURI } from '../config/fetch.cfg'
@@ -40,7 +39,7 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
 
     const solution = await Sets.get(game.setCode, 'code')
 
-    const cards = await GameCards.getCards(game.date, Cards)
+    const cards = await Games.getCards(game.date, Cards)
 
     const allCards = await Cards.find({ setCode: game.setCode }, false, 'number')
     const allSets = await Sets.get().then((sets) => sets.filter(({ skip }) => !skip).map(({ code }) => code))

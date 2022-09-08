@@ -33,7 +33,7 @@ block content
 
               select#position(name="position")
                 each card in cards
-                  option(for="position" value=card.position) #{card.position}: #{card.name}
+                  option(for="position" value=card.idx) #{card.idx}: #{card.name}
               
               input.button(type="submit" name="_action" value="Replace With:")
               
@@ -48,11 +48,11 @@ block content
             .button-group
               select#swapA(name="swapA")
                 each card in cards
-                  option(for="swapA" value=card.position) #{card.position}: #{card.name}
+                  option(for="swapA" value=card.idx) #{card.idx}: #{card.name}
               input.button(type="submit" name="_action" value="Swap With:")
               select#swapB(name="swapB")
                 each card in cards
-                  option(selected=(card.position === 1) for="swapB" value=card.position) #{card.position}: #{card.name}
+                  option(selected=(card.idx === 1) for="swapB" value=card.idx) #{card.idx}: #{card.name}
         
         .row
           .input-group.vertical.button-input
@@ -89,13 +89,13 @@ block content
       tbody
         each card in cards
           tr.tableRow
-            td(data-label='Position')= card.position
+            td(data-label='Position')= card.idx
             td(data-label='Name'): a(href=cardImageURI(card) target="_blank")= card.name
             td.large.cardImg(data-label='Image')
               img(
                 src=(card.url && imageUrl(card.url, true, { height: 0.5, width: 0.5 }))
-                alt=`Card ${card.position}` id=`card${card.position}`
-                title=`Card ${card.position}` crossorigin=true
+                alt=`Card ${card.idx}` id=`card${card.idx}`
+                title=`Card ${card.idx}` crossorigin=true
               )
             td.cardDetail(data-label='Detail')
               div= card.type

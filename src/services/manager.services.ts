@@ -1,25 +1,25 @@
 import { CleanupType } from '../controllers/express'
-import { IfExistsBehavior } from '../../engine/models/Model.d'
 import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
-import GameCards from '../models/GameCards'
 import { getRandomEntry } from '../utils/game.utils'
 import { cardsPerGame } from '../config/game.cfg'
 import { gui } from '../config/urls.cfg'
 
 export const gameURL = (date: string) => `${gui.basic.prefix}${gui.manage.prefix}${gui.manage.game}/${date}`
 
-export async function addGameCards(date: string, setCode: string, ifExists?: IfExistsBehavior) {
+export async function getGameCards(setCode: string) {
   const gameCards = await Cards.getRandomIds(cardsPerGame, setCode)
-  await GameCards.batchAdd(gameCards.map((cardId, position) => ({ date, position, cardId })), ifExists)
   await Cards.getImages(gameCards)
+  return gameCards
 }
 
-export async function updateGameCard(date: string, position: number, cardId: string) {
-  await GameCards.batchUpdate({ date, position }, { cardId }, async (update, current) => { await Promise.all([
-    Cards.clearImages([current.cardId]), Cards.getImages([update.cardId])
-  ]) })
+export async function updateGameCard(date: string, idx: number, cardId: string) {
+  await Games.cardsTable.batchUpdate({ fid: date, idx }, { val: cardId }, false, async (update, matching) => { 
+    if (matching && matching[0]) await Promise.all([
+      Cards.clearImages([matching[0].val]), Cards.getImages([update.val])
+    ])
+  })
 }
 
 export async function setGame(date: string, overwrite?: boolean, setCode?: string) {
@@ -29,19 +29,17 @@ export async function setGame(date: string, overwrite?: boolean, setCode?: strin
     setCode = getRandomEntry(setList).code
   }
 
-  await Games.add({ date, setCode }, overwrite ? 'overwrite' : 'abort')
   await Cards.addSet(setCode, false)
 
-  await addGameCards(date, setCode, overwrite ? 'overwrite' : 'abort')
+  const cards = await getGameCards(setCode)
+  await Games.add({ date, setCode, cards }, overwrite ? 'overwrite' : 'abort')
 }
 
 
 export async function deleteGame(date: string) {
-  const cards = await GameCards.find({ date }, false)
-  if (cards.length) await Cards.clearImages(cards.map(({ cardId }) => cardId))
-
+  const cards = await Games.get(date, 'date').then((data) => data.cards)
+  if (cards && cards.length) await Cards.clearImages(cards)
   await Games.remove(date, 'date')
-  await GameCards.remove(date, 'date')
 }
 
 
@@ -49,7 +47,6 @@ export async function cleanDb(skip: CleanupType[] = []) {
   if (!skip.includes('games')) {
     const twoDaysAgo = new Date(new Date().getTime() - (2*24*60*60*1000)).toJSON().slice(0,10)
     await Games.removeOlder(twoDaysAgo)
-    await GameCards.removeOlder(twoDaysAgo)
   }
 
   if (!skip.includes('setCards')) {
@@ -58,7 +55,7 @@ export async function cleanDb(skip: CleanupType[] = []) {
   }
 
   if (!skip.includes('cardImages')) {
-    const gameCards = await GameCards.get().then((cards) => cards.map(({ cardId }) => cardId))
+    const gameCards = await Games.cardsTable.get().then((cards) => cards.map((data) => data.val))
     await Cards.clearImages(gameCards, undefined, true)
   }
 }

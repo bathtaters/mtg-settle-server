@@ -5,8 +5,8 @@ import { normalizeCard, normalizeSet } from "../utils/fetch.utils"
 import { cardQuery, setQuery, setInfoURI, setSymbolKey, cardImageURI } from "../config/fetch.cfg"
 import Model from "../../engine/models/Model"
 
-export async function updateCardImage(update: Partial<Card>, current?: Card): Promise<void> {
-  if (!current) {
+export async function updateCardImage(update: Partial<Card>, matching?: Card[]): Promise<void> {
+  if (!matching || !matching.length) {
     if (!update.scryfallId) {
       delete update.img
       delete update.url
@@ -16,6 +16,7 @@ export async function updateCardImage(update: Partial<Card>, current?: Card): Pr
     return
   }
 
+  const current = matching[0]
   if (!('img' in update) || update.img === current.img) return
   if (update.img   && current.img) throw new Error('Card image FileID cannot be modified, can only be generated or deleted.')
   if (!update.img  && current.img) return deleteImage(current.img).then(() => {
@@ -28,8 +29,8 @@ export async function updateCardImage(update: Partial<Card>, current?: Card): Pr
   })
 }
 
-export async function updateGameSet(update: Partial<Game>, current?: Game): Promise<void> {
-  if (!update.art && update.setCode && (!current || update.setCode !== current.setCode))
+export async function updateGameSet(update: Partial<Game>, matching?: Game[]): Promise<void> {
+  if (!update.art && update.setCode && (!matching || !matching[0] || update.setCode !== matching[0].setCode))
     update.art = await getSetImage(update.setCode)
 }
 

@@ -1,3 +1,5 @@
+import { ArrayDefinition } from '../../engine/models/Model.d'
+
 export type DateType = string
 export type SetCodeType = string
 export type CardIDType = string
@@ -23,20 +25,11 @@ export interface CardSet {
   releaseDate: DateType
 }
 
-export interface GameCard {
-  id?: number,
-  date: DateType,
-  position: number,
-  cardId: CardIDType,
-}
-
 export interface Game {
   date: DateType,
   setCode: SetCodeType,
   art?: string,
+  cards?: string[],
 }
 
-export interface GameCardJoined extends Card {
-  date: GameCard['date'],
-  position: GameCard['position'],
-}
+export interface GameCardJoined extends Card { idx: ArrayDefinition["idx"] }
