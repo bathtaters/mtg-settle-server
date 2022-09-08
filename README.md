@@ -20,16 +20,11 @@ Backend for [Settle](https://github.com/bathtaters/mtg-settle) _(Magic: the Gath
  - **Card Data**: [MTGJSON](https://mtgjson.com/)
  - **Card/Set Images**: [Scryfall](https://scryfall.com/)
 
----
-
 ### To Do:
- - Move 'card.img' to GameCard object
- - Write services to auto-update models
- - Create Game endpoint (connect to security middleware)
- - Write service to store photos locally
- - Serve photos as static assets w/ random UUID names
+ - Create custom Game endpoint (connect to security middleware)
+    - Encrypt & Memoize (send key in header)
+ - Move errors to config
+ - Add route validation
  - Schedule services to run daily (populate upcoming games, archive old games)
- - Create custom editor interface
- - Schedule databases to update Weekly
- - Encrypt & Memoize game endpoint (send key in header?)
- - Add hit counter (by IP)
+    - Schedule databases to update Weekly
+ - Add request logs (Include IP, API Key, frontend session ID, request data, timestamp)
