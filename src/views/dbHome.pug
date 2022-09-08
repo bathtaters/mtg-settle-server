@@ -4,6 +4,5 @@ block content
   .container: .row: .col-sm
     h3 Database Tables
     .row
-      a.col-sm.large.button(href=urls.gui.basic.prefix+urls.gui.manage.prefix title="Management Console") Manage
       each model in models 
         a.col-sm.large.button(href=baseURL+model title=varName(model))= varName(model)

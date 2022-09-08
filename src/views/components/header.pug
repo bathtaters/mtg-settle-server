@@ -4,8 +4,8 @@ header
       img(src="/images/logo.png" alt=appTitle width="32px")
 
   if !hideNav
-    a.button.null(href=urls.gui.basic.prefix+urls.gui.basic.home title="Database")
-      span.icon-home(alt="Database")
+    a.button.null(href=urls.gui.basic.prefix+urls.gui.manage.prefix title="Manager")
+      span.icon-home(alt="Manager")
     if isAdmin
       a.button.null(href=urls.gui.admin.prefix+urls.gui.admin.user title="User Table")
         span.icon-user(alt="User Table")

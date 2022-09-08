@@ -42,6 +42,8 @@ block content
           .button-group
             +checkboxes("cleanup", ["setCards", "cardImages", "games"], "Skip")
             input.button#_actionClean(type="submit" value="Clean" name="_action")
+        .flex-spacer
+        a.button.small.bordered.flex-end(href=baseURL+'/../db') Advanced
 
       if csrfToken
         span: +formInput('_csrf', 'hidden', null, csrfToken)

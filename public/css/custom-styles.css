@@ -23,3 +23,7 @@ th.large, td.large { flex-grow: 1; }
 thead.cardDetail > tr:first-child { overflow-x: scroll; }
 th.cardDetail { margin-bottom: 0.125rem; }
 th.cardDetail, td.cardDetail { height: 4rem; }
+
+/* Override flex alignments */
+.flex-end { align-self: end; }
+.flex-spacer { flex-grow: 1; }
