@@ -3,6 +3,7 @@ import { UrlOptions, Transformation } from "imagekit/dist/libs/interfaces"
 import { delayRequest } from '../utils/fetch.utils'
 // @ts-ignore // resolveJsonModule is true in tsconfig
 import { ikOptions } from '../config/credentials.json'
+import logger from "../../engine/libs/log"
 
 const imagekit = new ImageKit(ikOptions.connection)
 
@@ -13,7 +14,7 @@ export async function storeImage(imageURL: string): Promise<ImageDetail> {
 }
 
 export async function deleteImage(fileId: string): Promise<void> {
-  await imagekit.deleteFile(fileId).catch((err) => console.error('ImageKit Delete ',fileId,'ERROR',err))
+  await imagekit.deleteFile(fileId).catch((err) => logger.error(`ImageKit Delete ERROR: <${fileId}> ${err.message}`))
 }
 
 export function pathToUrl(path: string, publicLink: boolean = true, resize?: Transformation) {

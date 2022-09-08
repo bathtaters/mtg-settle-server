@@ -4,6 +4,7 @@ import { storeImage, deleteImage, pathToUrl } from '../libs/storage'
 import { normalizeCard, normalizeSet } from "../utils/fetch.utils"
 import { cardQuery, setQuery, setInfoURI, setSymbolKey, cardImageURI } from "../config/fetch.cfg"
 import Model from "../../engine/models/Model"
+import logger from "../../engine/libs/log"
 
 export async function updateCardImage(update: Partial<Card>, matching?: Card[]): Promise<void> {
   if (!matching || !matching.length) {
@@ -63,8 +64,8 @@ export async function deleteCardImage(card: Card|Partial<Card>, Model?: Model<Ca
 export async function getSetImage(setCode: CardSet['code']): Promise<Game['art']> {
   let setInfo = await fetchData(setInfoURI(setCode), "object")
   if (!setInfo || !(setSymbolKey in setInfo) || typeof setInfo[setSymbolKey] !== 'string') {
-    console.warn(`No set symbol found for ${setCode}`)
-    console.debug(JSON.stringify(setInfo))
+    logger.warn(`No set symbol found for ${setCode}`)
+    logger.verbose(JSON.stringify(setInfo))
     return
   }
   return fetchData(setInfo[setSymbolKey]) || undefined

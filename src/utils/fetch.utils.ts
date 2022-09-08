@@ -3,6 +3,7 @@ import { Card, CardSet } from "../models/_types"
 import { Normalizer } from "../libs/fetch"
 import { testObject } from "./common.utils"
 import { ignoreCards, ignoreSets } from "../config/fetch.cfg"
+import logger from "../../engine/libs/log"
 
 
 const validSet = (set: any): set is GQLSet => set &&
@@ -15,7 +16,7 @@ const validSet = (set: any): set is GQLSet => set &&
 // @ts-ignore // Using GQLSet guard to help show types overrides ts-common-sense
 export const normalizeSet: Normalizer<CardSet> = (set: any) => {
   if (!validSet(set)) {
-    console.warn(`Skipped set: ${JSON.stringify(set)}`)
+    logger.info(`Skipped set: ${JSON.stringify(set)}`)
     return null
   }
   return {
@@ -38,7 +39,7 @@ const validCard = (card: any): card is Required<GQLCard> => card && card.identif
 // @ts-ignore // Using GQLCard guard to help show types overrides ts-common-sense
 export const normalizeCard: Normalizer<Card> = (card: any) => {
   if (!validCard(card)) {
-    console.warn(`Skipped card: ${JSON.stringify(card)}`)
+    logger.info(`Skipped card: ${JSON.stringify(card)}`)
     return null
   }
   if(testObject(card, ...ignoreCards)) return null
