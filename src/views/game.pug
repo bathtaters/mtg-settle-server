@@ -92,11 +92,12 @@ block content
             td(data-label='Position')= card.idx
             td(data-label='Name'): a(href=cardImageURI(card) target="_blank")= card.name
             td.large.cardImg(data-label='Image')
-              img(
-                src=(card.url && imageUrl(card.url, true, { height: 0.5, width: 0.5 }))
-                alt=`Card ${card.idx}` id=`card${card.idx}`
-                title=`Card ${card.idx}` crossorigin=true
-              )
+              a(href=(card.url && imageUrl(card.url, true)) target="_blank")
+                img(
+                  src=(card.url && imageUrl(card.url, true, { height: 0.5, width: 0.5 }))
+                  alt=`Card ${card.idx}` id=`card${card.idx}`
+                  title=`Card ${card.idx}` crossorigin=true
+                )
             td.cardDetail(data-label='Detail')
               div= card.type
               div: i Artist: #{card.artist}
