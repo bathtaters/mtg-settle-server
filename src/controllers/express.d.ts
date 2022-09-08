@@ -1,5 +1,4 @@
 import express from 'express'
-import passport from 'passport'
 import { CleanupType } from '../services/manager.services'
 
 export declare type CleanupType = "setCards"|"cardImages"|"games"
