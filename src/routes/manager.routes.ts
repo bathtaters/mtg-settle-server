@@ -1,9 +1,9 @@
 import { Router } from 'express'
+import { isIsoDate } from '../libs/date'
 import { homeController, gameController } from '../controllers/manager.gui'
 import { homeForm, gameForm } from '../controllers/manager.actions'
-import { gameURL } from '../services/manager.services'
 import { checkAuth } from '../../engine/middleware/auth.middleware'
-import { isIsoDate } from '../utils/game.utils'
+import { gameURL } from '../services/manager.services'
 import { access } from '../../engine/config/users.cfg'
 import { gui } from '../config/urls.cfg'
 

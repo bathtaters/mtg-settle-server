@@ -4,9 +4,8 @@ import Cards from '../models/Cards'
 import Games from '../models/Games'
 
 import { gameURL, getGameCards, updateGameCard, setGame, deleteGame, cleanDb } from '../services/manager.services'
-import { isIsoDate } from '../utils/game.utils'
+import { isIsoDate } from '../libs/date'
 import { gui } from '../config/urls.cfg'
-import { cardsPerGame } from '../config/game.cfg'
 
 export const homeForm: FormHandler<ManagerForm> = async (req, res, next) => {
   try {

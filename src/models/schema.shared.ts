@@ -1,5 +1,5 @@
 import { Definition } from '../../engine/models/Model.d'
-import { normalizeDate } from '../utils/game.utils'
+import { normalizeDate } from '../libs/date'
 
 export const date: Definition = Object.freeze({
   typeStr: "string",

@@ -3,7 +3,7 @@ import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
 
-import { isIsoDate } from '../utils/game.utils'
+import { isIsoDate } from '../libs/date'
 import { cardImageURI } from '../config/fetch.cfg'
 import { hasAccess } from '../../engine/utils/users.utils'
 import { access } from '../../engine/config/users.cfg'
