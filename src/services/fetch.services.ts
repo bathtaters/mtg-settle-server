@@ -1,10 +1,11 @@
 import { Card, CardSet, Game } from "../models/_types"
+import logger from "../../engine/libs/log"
 import { fetchData, queryDB }  from '../libs/fetch'
 import { storeImage, deleteImage, pathToUrl, listIds } from '../libs/storage'
+import Model from "../../engine/models/Model"
 import { normalizeCard, normalizeSet } from "../utils/fetch.utils"
 import { cardQuery, setQuery, setInfoURI, setSymbolKey, cardImageURI } from "../config/fetch.cfg"
-import Model from "../../engine/models/Model"
-import logger from "../../engine/libs/log"
+import * as errors from '../config/errors'
 
 export async function updateCardImage(update: Partial<Card>, matching?: Card[]): Promise<void> {
   if (!matching || !matching.length) {
@@ -19,7 +20,7 @@ export async function updateCardImage(update: Partial<Card>, matching?: Card[]):
 
   const current = matching[0]
   if (!('img' in update) || update.img === current.img) return
-  if (update.img   && current.img) throw new Error('Card image FileID cannot be modified, can only be generated or deleted.')
+  if (update.img   && current.img) throw errors.modifyFileId()
   if (!update.img  && current.img) return deleteImage(current.img).then(() => {
     update.img = undefined
     update.url = undefined
@@ -44,7 +45,7 @@ export async function storeCardImage(card: Card): Promise<Card>
 export async function storeCardImage(card: Partial<Card>): Promise<Partial<Card>>
 export async function storeCardImage(card: Card|Partial<Card>): Promise<Card|Partial<Card>> {
   const source = cardImageURI(card)
-  if (!source) throw new Error('Cannot determine image source to store: '+JSON.stringify(card))
+  if (!source) throw errors.noEntry(JSON.stringify(card))
   const img = await storeImage(source)
   card.img = img.img
   card.url = img.url
@@ -52,8 +53,8 @@ export async function storeCardImage(card: Card|Partial<Card>): Promise<Card|Par
 }
 
 export async function deleteCardImage(card: Card|Partial<Card>, Model?: Model<Card>): Promise<Card|Partial<Card>> {
-  if (Model && !card.id) throw new Error('Must include CardID in order to delete image: '+JSON.stringify(card))
-  if (!card.img) throw new Error('Cannot determine image ID to delete: '+JSON.stringify(card))
+  if (Model && !card.id) throw errors.noID()
+  if (!card.img) throw errors.noData('card image')
   await deleteImage(card.img)
   if (Model) await Model.update(card.id, { img: undefined, url: undefined }, 'id')
   delete card.img

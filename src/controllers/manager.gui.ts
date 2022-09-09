@@ -8,6 +8,7 @@ import { cardImageURI } from '../config/fetch.cfg'
 import { hasAccess } from '../../engine/utils/users.utils'
 import { access } from '../../engine/config/users.cfg'
 import { gui } from '../config/urls.cfg'
+import * as errors from '../config/errors'
 
 
 export const homeController: GuiHandler = async (req, res, next) => {
@@ -35,7 +36,7 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
     if (!req.params.date || !isIsoDate(req.params.date)) return next()
 
     const game = await Games.get(req.params.date, 'date')
-    if (!game) throw new Error(`Game not yet generated for date: ${req.params.date}`)
+    if (!game) throw errors.noEntry(req.params.date)
 
     const solution = await Sets.get(game.setCode, 'code')
 

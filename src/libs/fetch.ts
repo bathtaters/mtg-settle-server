@@ -3,6 +3,7 @@ import objPath from 'object-path'
 import { ApolloClient, HttpLink, InMemoryCache, QueryOptions } from "@apollo/client/core"
 import { gqlOptions } from "../config/fetch.cfg"
 import { toObject, GenericObject } from "../utils/common.utils"
+import * as errors from '../config/errors'
 
 const gqlClient = new ApolloClient({ link: new HttpLink({ ...gqlOptions, fetch }), cache: new InMemoryCache() })
 
@@ -27,12 +28,12 @@ export async function queryDB<Type>(queryOptions: QueryOptions, dataPath: string
 export async function queryDB<Type>(queryOptions: QueryOptions, dataPath: string = '', normalizeCb?: Normalizer<Type>): Promise<Type[] | any[]> {
   let result = [] as any[], next
   while(next = await gqlClient.query(queryOptions)) {
-    if (next.errors && next.errors.length) throw new Error(`Apollo Query Error(s)[${next.errors.length}]: ${next.errors.map(String).join(', ')}`)
+    if (next.errors && next.errors.length) throw errors.apolloErr(next.errors)
 
     next = next && next.data && objPath.get(next.data, dataPath)
-    if (next == null) throw new Error(`Apollo Query returned null with no error, check objPath ("${dataPath}") is accurate.`)
+    if (next == null) throw errors.apolloNull(dataPath)
     if (normalizeCb) next = filterQuery(next, normalizeCb)
-    if (!Array.isArray(next)) throw new Error(`Apollo Query returned non-array with no error (${next}), check objPath ("${dataPath}") is accurate.`)
+    if (!Array.isArray(next)) throw errors.apolloBad(next, dataPath)
     if (!next.length) break
     result = result.concat(next)
 

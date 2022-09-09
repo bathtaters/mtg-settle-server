@@ -7,6 +7,7 @@ import { getRandomEntry } from '../utils/game.utils'
 import { arrayDifferences } from '../utils/common.utils'
 import { cardsPerGame, clearOlderThan } from '../config/game.cfg'
 import { gui } from '../config/urls.cfg'
+import * as errors from '../config/errors'
 
 export const gameURL = (date: string) => `${gui.basic.prefix}${gui.manage.prefix}${gui.manage.game}/${date}`
 
@@ -27,7 +28,7 @@ export async function updateGameCard(date: string, idx: number, cardId: string) 
 export async function setGame(date: string, overwrite?: boolean, setCode?: string) {
   if (!setCode) {
     const setList = await Sets.find({ skip: false }, false)
-    if (!setList || !setList.length) throw new Error('Must download sets before creating a game.')
+    if (!setList || !setList.length) throw errors.noSets()
     setCode = getRandomEntry(setList).code
   }
 

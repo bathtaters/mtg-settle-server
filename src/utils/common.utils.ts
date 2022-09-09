@@ -1,4 +1,5 @@
 import { isRegEx } from '../../engine/utils/users.utils'
+import * as errors from '../config/errors'
 
 export declare type GenericObject = { [key: string]: any }
 
@@ -22,7 +23,7 @@ export function toObject(data: string): GenericObject | null {
   if (typeof data !== 'string') return null
   let parsed
   try { parsed = JSON.parse(data) }
-  catch (err) { throw new Error(`Unable to parse string: ${data}`) }
+  catch (err) { throw errors.parseErr(data) }
   if (!parsed || typeof parsed !== 'object') return null
   return parsed as GenericObject
 }

@@ -1,11 +1,12 @@
 import { Game, CardSet, GameCardJoined, Card } from '../models/_types'
 import { randomInt } from 'crypto'
 import { pathToUrl } from '../libs/storage'
+import * as errors from '../config/errors'
 
 export const getRandomEntry = <Type>(valueList: Type[]): Type => valueList[randomInt(0, valueList.length)]
 
 export const getRandomEntries = <Type>(valueList: Type[], count: number): Type[] => {
-  if (valueList.length >= count) throw new Error(`List is too small (${valueList.length}) to find ${count} random entries.`)
+  if (valueList.length >= count) throw errors.smallList(valueList.length, count)
   let indexes: number[] = []
   while (indexes.length < count) {
     const nextIdx = randomInt(0, valueList.length)

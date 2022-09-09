@@ -3,6 +3,7 @@ import { Feedback } from '../../engine/models/Model.d'
 import { CardSet } from './_types'
 import { getSetList } from '../services/fetch.services'
 import { setCode } from './schema.shared'
+import * as errors from '../config/errors'
 
 class Sets extends Model<CardSet> {
   constructor() {
@@ -18,7 +19,7 @@ class Sets extends Model<CardSet> {
 
   async updateAll(overwrite: boolean = false): Promise<Feedback> {
     const setList = await getSetList()
-    if (!setList.length) throw new Error("No sets found in DB, there may be an error with MTGJSON")
+    if (!setList.length) throw errors.noResSets()
     return super.batchAdd(setList, overwrite ? 'overwrite' : 'skip')
   }
 }

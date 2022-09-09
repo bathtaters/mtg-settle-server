@@ -5,11 +5,12 @@ import { updateGameSet } from '../services/fetch.services'
 import { setCode, date } from './schema.shared'
 import { gameCardJoin, swapIndexs } from '../config/sql.constants'
 import { cardsPerGame } from '../config/game.cfg'
+import * as errors from '../config/errors'
 
 class Games extends Model<Game> {
   private _cardsTable?: Model<ArrayDefinition<string,string>>
   get cardsTable(): Model<ArrayDefinition<string,string>> {
-    if (!this._cardsTable) throw new Error('Games table not initialized, wait a second and try again.')
+    if (!this._cardsTable) throw errors.gameNotInit()
     return this._cardsTable
   }
 
