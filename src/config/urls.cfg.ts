@@ -2,6 +2,7 @@ import RegEx from '../../engine/libs/regex'
 
 export const api = Object.freeze({
   prefix: '/api',
+  client: '/client',
   swap:   '/swap',
 }),
 

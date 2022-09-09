@@ -4,11 +4,11 @@
 # Use predefined vars, any blank vars will be asked for before each test
 test_protocol="https"     # http/https
 test_domain="localhost"   # Set IP/domain
-test_port=""              # Set PORT
+test_port="3035"          # Set PORT
 test_token=""             # Auth token
-test_access="rw"          # Expected token access
-test_path="api/base"      # URL path to test
-test_key="data"           # Data key @ test_path to test setting/changing
+test_access="r"           # Expected token access
+test_path="api/client/today" # URL path to test
+test_key="solution"       # Data key @ test_path to test setting/changing
 
 # Additional options (These can only be set here)
 test_SSL=0                # Test TLS/SSL certificate's authenticity (Set to 0 for self-signed cert, ie. for dev enviroment)

@@ -1,10 +1,10 @@
+import { Game, CardSet, GameCardJoined, Card, DateType } from '../models/_types'
 import { randomInt } from 'crypto'
-import { DateType } from "../models/_types"
 import RegEx from '../../engine/libs/regex'
 import * as date from '../../engine/libs/date'
+import { pathToUrl } from '../libs/storage'
 
 export type UIDate = Date | string | number
-// const { isDate, formatDateISO } = date
 const dateRegex = RegEx(/^\d{4}-\d{2}-\d{2}$/)
 
 export const isIsoDate = (dateIn: UIDate) => typeof dateIn === 'string' && dateRegex.test(dateIn)
@@ -22,3 +22,17 @@ export const getRandomEntries = <Type>(valueList: Type[], count: number): Type[]
   }
   return indexes.map((idx) => valueList[idx])
 }
+
+const filterCards = ({ id, name, artist, img, url }: GameCardJoined):
+  Pick<Card, 'id'|'name'|'artist'|'img'|'url'> =>
+  ({ id, name, artist, img: url && pathToUrl(url, true) })
+
+export const combineGame = (
+  { date, setCode, art  }: Game,
+  { name, block }: CardSet,
+  cardDetails: GameCardJoined[]
+) => ({
+  date, setCode, art, block,
+  setName: name,
+  cards: cardDetails.sort((a,b) => a.idx - b.idx).map(filterCards)
+})
