@@ -21,11 +21,10 @@ Backend for [Settle](https://github.com/bathtaters/mtg-settle) _(Magic: the Gath
  - **Card/Set Images**: [Scryfall](https://scryfall.com/)
 
 ### To Do:
- - Create custom Game endpoint (connect to security middleware)
-    - Encrypt & Memoize (send key in header)
- - Move errors to config
+ - Memoize game endpoint
  - Add route validation
  - Schedule services to run daily (populate upcoming games, archive old games)
     - Schedule databases to update Weekly
  - Add request logs (Include IP, API Key, frontend session ID, request data, timestamp)
- - Fix management/game GUI on Firefox (Including photo sizes, also broken on Safari)
+ - Add 'create next X days' button
+ - Add interface for permanently skipping some cards
