@@ -1,4 +1,4 @@
-/// <reference path="./jquery-3.6.0.min.js" />
+/// <reference path="../../engine/public/javascripts/jquery-3.6.0.min.js" />
 
 /* delete game confirmation */
 $( "#_actionDelete" ).on("click", function(ev) {
