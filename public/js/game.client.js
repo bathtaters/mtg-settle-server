@@ -9,7 +9,7 @@ $( "#_actionDelete" ).on("click", function(ev) {
 $( "tr.tableRow" ).each(function() {
   var detail = $(this).find(".imgDetail");
 
-  $(this).find(".cardImg > img").one("load", function() {
+  $(this).find(".cardImg img").one("load", function() {
     detail.text($(this).height()*2 + "px x " + $(this).width()*2 + "px");
   }).each(function() {
     if (this.complete) { $(this).trigger('load'); }
