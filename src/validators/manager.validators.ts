@@ -1,6 +1,6 @@
 import { Definition } from '../../engine/models/Model.d'
 import { FormHandler, ManagerForm, GameForm } from '../controllers/express'
-import { bySchema } from '../../engine/validators/shared.validators'
+import { byObject } from '../../engine/validators/shared.validators'
 import { date } from '../models/schema.shared'
 import { managerForm, gameForm } from '../config/forms.cfg'
 
@@ -9,6 +9,6 @@ const formAdditional: { [key: string]: Definition } = {
   _csrf:   { typeStr: 'string' },
 }
 
-export const dateValidator: FormHandler<{ date: string }>[] = bySchema({ date: { ...date } }, ['params', 'body'], false) as any
-export const managerValidator: FormHandler<ManagerForm>[] = bySchema({ ...managerForm, ...formAdditional }, ['body'], true) as any // fix to expected RequestHandler
-export const gameValidator: FormHandler<GameForm>[] = bySchema({ ...gameForm, ...formAdditional }, ['body'], true) as any
+export const dateValidator:    FormHandler<{date: string}>[] = byObject({ date: { ...date } },       ['params', 'body'], { forceOptional: false }) as any
+export const managerValidator: FormHandler<ManagerForm>[]    = byObject({ ...managerForm, ...formAdditional }, ['body'], { forceOptional: true  }) as any
+export const gameValidator:    FormHandler<GameForm>[]       = byObject({ ...gameForm, ...formAdditional },    ['body'], { forceOptional: true  }) as any
