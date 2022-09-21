@@ -6,6 +6,5 @@ import authenticate from '../../engine/middleware/cors.middleware'
 const router = Router()
 
 router.get('/today', authenticate(Games.title as any, 'read'), getGame)
-router.get('/:date', authenticate(Games.title as any, 'read'), getGame)
 
 export default router
