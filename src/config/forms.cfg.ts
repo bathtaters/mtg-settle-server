@@ -8,7 +8,7 @@ export const
   cleanupOptions = ["setCards", "cardImages", "games"] as const
 
 
-const cardIndex: Definition = { typeStr: 'int?', limits: { max: cardsPerGame - 1 } }
+const cardIndex: Definition = { typeStr: 'int?', limits: { min: 0, max: cardsPerGame - 1 } }
 export const
   managerForm: { [key: string]: Definition } = {
     addSet:    { ...setCode },
@@ -19,7 +19,7 @@ export const
   },
   gameForm: { [key: string]: Definition } = {
     date:      { ...date },
-    newCards:  { ...cardID },
+    newCard:   { ...cardID },
     newSet:    { ...setCode },
     position:  { ...cardIndex },
     swapA:     { ...cardIndex },
