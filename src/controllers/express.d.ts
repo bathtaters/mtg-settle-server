@@ -1,4 +1,5 @@
 import express from 'express'
+import { GameAction, ManagerAction } from '../config/forms.cfg'
 import { CleanupType } from '../services/manager.services'
 
 export declare type CleanupType = "setCards"|"cardImages"|"games"
@@ -13,7 +14,7 @@ declare global {
 }
 
 export interface ManagerForm {
-  _action: "Update All"|"Add"|"Remove"|"Create"|"Edit"|"Delete"|"Clean",
+  _action: ManagerAction,
   updateSet?: string,
   addSet?: string,
   removeSet?: string,
@@ -24,13 +25,13 @@ export interface ManagerForm {
 }
 
 export interface GameForm {
-  _action: "Replace With:"|"Swap With:"|"Cards"|"Game"|"Choose Set"|"Delete",
+  _action: GameAction,
   date: string,
-  position?: number|string,
+  position?: number,
   newCard?: string,
   newSet?: string,
-  swapA?: number|string,
-  swapB?: number|string,
+  swapA?: number,
+  swapB?: number,
   _csrf?: string,
 }
 

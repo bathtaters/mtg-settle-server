@@ -35,21 +35,21 @@ block content
                 each card in cards
                   option(for="position" value=card.idx) #{card.idx}: #{card.name}
               
-              input.button(type="submit" name="_action" value="Replace With:")
+              input.button(type="submit" name="_action" value=actions[0])
               
               select#newCard(name="newCard")
                 each card in allCards
                   option(for="newCard" value=card.id data-preview=cardImageURI(card))= card.name
               
-              input.button#randomCard(type="button" value="Random")
+              input.button#randomCard(type="button" value=actions[1])
               
-              a.button#previewCard(target="_blank") Preview
+              a.button#previewCard(target="_blank")= actions[2]
             
             .button-group
               select#swapA(name="swapA")
                 each card in cards
                   option(for="swapA" value=card.idx) #{card.idx}: #{card.name}
-              input.button(type="submit" name="_action" value="Swap With:")
+              input.button(type="submit" name="_action" value=actions[3])
               select#swapB(name="swapB")
                 each card in cards
                   option(selected=(card.idx === 1) for="swapB" value=card.idx) #{card.idx}: #{card.name}
@@ -58,17 +58,17 @@ block content
           .input-group.vertical.button-input
             label.tooltip(aria-label="Randomize all cards OR entire game") Randomize all:
             .button-group
-              input.button(type="submit" value="Cards" name="_action")
-              input.button(type="submit" value="Game"  name="_action")
+              input.button(type="submit" value=actions[4] name="_action")
+              input.button(type="submit" value=actions[5]  name="_action")
 
           +buttonInput(
-            'newSet', allSets, 'Choose Set', null, solution.setCode,
+            'newSet', allSets, actions[6], null, solution.setCode,
             null, 'Update solution:', 'Change the solution to a new set (w/ random cards)',
             '_action', 'submit'
           )
 
           +buttonInput(
-            '', null, 'Delete', null, null,
+            '', null, actions[7], null, null,
             null, 'Delete game:', 'Delete this game entirely',
             '_action', 'submit'
           )

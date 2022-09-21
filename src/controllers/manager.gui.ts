@@ -1,11 +1,14 @@
 import { GuiHandler } from './express'
+import { matchedData } from 'express-validator'
 import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
 
 import { isIsoDate } from '../libs/date'
+import { gameURL } from '../services/manager.services'
 import { cardImageURI } from '../config/fetch.cfg'
 import { hasAccess } from '../../engine/utils/users.utils'
+import { managerActions, gameActions, managerForm, cleanupOptions } from '../config/forms.cfg'
 import { access } from '../../engine/config/users.cfg'
 import { gui } from '../config/urls.cfg'
 import * as errors from '../config/errors'
@@ -25,6 +28,9 @@ export const homeController: GuiHandler = async (req, res, next) => {
       setList,
       gameList,
       cardSets,
+      cleanupOptions,
+      schema: managerForm,
+      actions: managerActions,
       baseURL: gui.basic.prefix + gui.manage.prefix,
     })
   } catch (err) { return next(err) }
@@ -33,10 +39,11 @@ export const homeController: GuiHandler = async (req, res, next) => {
 
 export const gameController: GuiHandler<{ date?: string }> = async (req, res, next) => {
   try {
-    if (!req.params.date || !isIsoDate(req.params.date)) return next()
+    const date: string = matchedData(req).date
+    if (!date || !isIsoDate(date)) return next()
 
-    const game = await Games.get(req.params.date, 'date')
-    if (!game) throw errors.noEntry(req.params.date)
+    const game = await Games.get(date, 'date')
+    if (!game) throw errors.noEntry(date)
 
     const solution = await Sets.get(game.setCode, 'code')
 
@@ -56,7 +63,14 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
       allCards,
       allSets,
       cardImageURI,
+      actions: gameActions,
       baseURL: gui.basic.prefix + gui.manage.prefix,
     })
   } catch (err) { return next(err) }
+}
+
+
+export const redirectGame: GuiHandler<{ date?: string }> = (req,res,next) => {
+  const date: string = matchedData(req).date
+  return isIsoDate(date) ? res.redirect(gameURL(date)) : next()
 }

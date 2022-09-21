@@ -8,24 +8,24 @@ block content
     form(method="POST" action=baseURL+urls.gui.manage.form)
       .row
         +buttonInput(
-          'updateSet', null, 'Update All', null, null,
+          'updateSet', null, actions[0], null, null,
           null, 'Update set list:', 'Re-download set list from database',
           '_action', 'submit'
         )
         +buttonInput(
-          'addSet', setList, 'Add', null, null,
+          'addSet', setList, actions[1], null, null,
           null, 'Add set:', 'Download cards from selected set',
           '_action', 'submit'
         )
         +buttonInput(
-          'removeSet', cardSets, 'Remove', null, null,
+          'removeSet', cardSets, actions[2], null, null,
           null, 'Remove set:', 'Delete all cards from selected set',
           '_action', 'submit'
         )
         
       .row
         +buttonInput(
-          'newGame', 'date', 'Create', null, (new Date()).toJSON().slice(0,10),
+          'newGame', schema.newGame.html, actions[3], null, (new Date()).toJSON().slice(0,10),
           null, 'Create game:', 'Generate a new game for the selected date',
           '_action', 'submit'
         )
@@ -33,15 +33,15 @@ block content
           label.tooltip(for="game" aria-label="Select a game to edit or delete") Pick a game:
           .button-group
             +typedInp("game", gameList)
-            input.button#_actionEdit(  type="submit" value="Edit"   name="_action")
-            input.button#_actionDelete(type="submit" value="Delete" name="_action")
+            input.button#_actionEdit(  type="submit" value=actions[4] name="_action")
+            input.button#_actionDelete(type="submit" value=actions[5] name="_action")
       
       .row
         .input-group.vertical.button-input
           label.tooltip(for="cleanup" aria-label="Cleanup database, skipping any checked options") Cleanup DB:
           .button-group
-            +checkboxes("cleanup", ["setCards", "cardImages", "games"], "Skip")
-            input.button#_actionClean(type="submit" value="Clean" name="_action")
+            +checkboxes("cleanup", cleanupOptions, "Skip")
+            input.button#_actionClean(type="submit" value=actions[6] name="_action")
         .flex-spacer
         a.button.small.bordered.flex-end(href=baseURL+'/../db') Advanced
 
