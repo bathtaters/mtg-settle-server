@@ -32,4 +32,10 @@ export interface Game {
   cards?: string[],
 }
 
+export interface Cache<DataType = any> {
+  id: string,
+  data: DataType,
+  timestamp: number
+}
+
 export interface GameCardJoined extends Card { idx: ArrayDefinition["idx"] }

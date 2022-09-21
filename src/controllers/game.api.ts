@@ -9,7 +9,7 @@ export const getGame: GuiHandler<{ date?: string }> = async (req, res, next) => 
     const secret = getSecret()
     const game = await getGameData(today(), secret)
 
-    return res.send({
+    return res.locals.sendCache({
       game, secret,
       expiresIn: untilTomorrow(),
     })
