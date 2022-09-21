@@ -24,24 +24,26 @@ block content
         )
         
       .row
-        +buttonInput(
-          'newGame', schema.newGame.html, actions[3], null, (new Date()).toJSON().slice(0,10),
-          null, 'Create game:', 'Generate a new game for the selected date',
-          '_action', 'submit'
-        )
+        .input-group.vertical.button-input
+          label.tooltip(for="newGame" aria-label="Generate a new game for the selected date") Create game(s):
+          .button-group
+            +typedInp("newGame", schema.newGame.html, null, (new Date()).toJSON().slice(0,10))
+            input.button#_actionCreate(type="submit" value=actions[3] name="_action")
+            input.button#_actionUpTo(  type="submit" value=actions[4] name="_action")
+
         .input-group.vertical.button-input
           label.tooltip(for="game" aria-label="Select a game to edit or delete") Pick a game:
           .button-group
             +typedInp("game", gameList)
-            input.button#_actionEdit(  type="submit" value=actions[4] name="_action")
-            input.button#_actionDelete(type="submit" value=actions[5] name="_action")
+            input.button#_actionEdit(  type="submit" value=actions[5] name="_action")
+            input.button#_actionDelete(type="submit" value=actions[6] name="_action")
       
       .row
         .input-group.vertical.button-input
           label.tooltip(for="cleanup" aria-label="Cleanup database, skipping any checked options") Cleanup DB:
           .button-group
             +checkboxes("cleanup", cleanupOptions, "Skip")
-            input.button#_actionClean(type="submit" value=actions[6] name="_action")
+            input.button#_actionClean(type="submit" value=actions[7] name="_action")
         .flex-spacer
         a.button.small.bordered.flex-end(href=baseURL+'/../db') Advanced
 

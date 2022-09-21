@@ -1,4 +1,4 @@
-import { startOfTomorrow } from 'date-fns'
+import { startOfTomorrow, eachDayOfInterval } from 'date-fns'
 import { formatDateISO, isDate, parseISO } from '../../engine/libs/date'
 import { DateType } from '../models/_types'
 import RegEx from '../../engine/libs/regex'
@@ -14,5 +14,8 @@ export const normalizeDate = (dateIn: UIDate) => isIsoDate(dateIn) ? dateIn :
 export const today = () => formatDateISO(new Date())
 export const tomorrow = startOfTomorrow
 export const untilTomorrow = () => startOfTomorrow().getTime() - new Date().getTime()
+
+const toDate = (date: UIDate): Date => isDate(date) ? date as Date : new Date(date)
+export const daysInRange = (start: UIDate, end: UIDate) => eachDayOfInterval({ start: toDate(start), end: toDate(end) }).map(formatDateISO)
 
 export { formatDateISO, isDate, parseISO }

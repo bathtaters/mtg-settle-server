@@ -1,5 +1,6 @@
 import Model from '../../engine/models/Model'
 import { Cache } from './_types'
+import * as errors from '../config/errors'
 
 const oneDay = 24*60*60*1000
 const getNow = () => new Date().getTime()
@@ -19,7 +20,7 @@ class Cached extends Model<Cache> {
   }
 
   async store(id: string, data: any) {
-    if (typeof data !== 'object') throw new Error(`Expected "object", recieved "${typeof data}"`)
+    if (typeof data !== 'object') throw errors.badType('object', data)
     if (data.error) throw data
     await this.add({ id, data, timestamp: getNow() }, 'overwrite')
   }

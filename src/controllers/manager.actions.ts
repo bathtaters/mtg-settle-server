@@ -4,7 +4,7 @@ import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
 
-import { gameURL, getGameCards, updateGameCard, setGame, deleteGame, cleanDb } from '../services/manager.services'
+import { gameURL, getGameCards, updateGameCard, setGame, deleteGame, cleanDb, createGames } from '../services/manager.services'
 import { isIsoDate } from '../libs/date'
 import { gui } from '../config/urls.cfg'
 import * as errors from '../config/errors'
@@ -30,7 +30,13 @@ export const homeForm: FormHandler<ManagerForm> = async (req, res, next) => {
       case 'Create':
         if (!data.newGame) throw errors.noData('date')
         if (!isIsoDate(data.newGame)) throw errors.badData('game date',data.newGame,'date')
-        await setGame(data.newGame, false)
+        await setGame(data.newGame, 'abort')
+        break
+
+      case 'Up To':
+        if (!data.newGame) throw errors.noData('date')
+        if (!isIsoDate(data.newGame)) throw errors.badData('game date',data.newGame,'date')
+        await createGames(data.newGame)
         break
 
       case 'Edit':
@@ -74,11 +80,11 @@ export const gameForm: FormHandler<GameForm> = async (req, res, next) => {
 
       case 'Choose Set':
         if (!data.newSet) throw errors.noData('set')
-        await setGame(data.date, true, data.newSet)
+        await setGame(data.date, 'overwrite', data.newSet)
         break
 
       case 'Game':
-        await setGame(data.date, true)
+        await setGame(data.date, 'overwrite')
         break
 
       case 'Cards':

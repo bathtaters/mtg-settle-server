@@ -19,6 +19,8 @@ apolloNull = (path: string) => createError(502, `Apollo Query returned null with
 apolloBad = (val: any, path: string) => createError(502, `Apollo Query returned non-array with no error (${val}), check objPath ("${path}") is accurate.`),
 modifyFileId = () => createError(400, 'Card image FileID cannot be modified, only generated or removed.'),
 
+// Manager errors
+invalidDateRange = () => createError(400, 'Date must be at one day ahead of today'),
 
 // Games.model errors
 gameNotInit = () => createError(500, 'Games table not initialized, wait a second and try again.'),
@@ -32,4 +34,5 @@ noSets = () => createError(400, 'Must download sets before creating a game.'),
 noResSets = () => createError(502, "No sets found in DB, there may be an error with MTGJSON"),
 
 // Shared Errors
-parseErr = (data: any) => createError(500, `Unable to parse string: ${data}`)
+parseErr = (data: any) => createError(500, `Unable to parse string: ${data}`),
+badType = (expected: string, recieved: any) => createError(400, `Expected "${expected}", recieved "${typeof recieved}"`)

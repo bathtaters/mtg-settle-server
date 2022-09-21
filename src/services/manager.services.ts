@@ -1,8 +1,10 @@
 import { CleanupType } from '../controllers/express'
+import { IfExistsBehavior } from '../../engine/models/Model.d'
 import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
 import { deleteImage, listIds } from './fetch.services'
+import { daysInRange } from '../libs/date'
 import { getRandomEntry } from '../utils/game.utils'
 import { arrayDifferences } from '../utils/common.utils'
 import { cardsPerGame, clearOlderThan } from '../config/game.cfg'
@@ -25,7 +27,7 @@ export async function updateGameCard(date: string, idx: number, cardId: string) 
   })
 }
 
-export async function setGame(date: string, overwrite?: boolean, setCode?: string) {
+export async function setGame(date: string, ifExists?: IfExistsBehavior, setCode?: string) {
   if (!setCode) {
     const setList = await Sets.find({ skip: false }, false)
     if (!setList || !setList.length) throw errors.noSets()
@@ -35,7 +37,20 @@ export async function setGame(date: string, overwrite?: boolean, setCode?: strin
   await Cards.addSet(setCode, false)
 
   const cards = await getGameCards(setCode)
-  await Games.add({ date, setCode, cards }, overwrite ? 'overwrite' : 'abort')
+  await Games.add({ date, setCode, cards }, ifExists)
+}
+
+export async function createGames(endDate: string) {
+  let dayList
+  try { dayList = daysInRange(new Date(), endDate) }
+  catch (err) {
+    // @ts-ignore
+    if (err.name === 'RangeError') throw errors.invalidDateRange()
+    else throw err
+  }
+  if (!dayList) throw errors.invalidDateRange()
+
+  for (const date of dayList) { await setGame(date, 'skip') }
 }
 
 

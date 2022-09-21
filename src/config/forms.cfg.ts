@@ -3,7 +3,7 @@ import { setCode, cardID, date } from '../models/schema.shared'
 import { cardsPerGame } from './game.cfg'
 
 export const
-  managerActions = ["Update All", "Add", "Remove", "Create", "Edit", "Delete", "Clean"] as const,
+  managerActions = ["Update All", "Add", "Remove", "Create", "Up To", "Edit", "Delete", "Clean"] as const,
   gameActions = ["Replace With:", "Random", "Preview", "Swap With:", "Cards", "Game", "Choose Set", "Delete"] as const,
   cleanupOptions = ["setCards", "cardImages", "games"] as const
 
