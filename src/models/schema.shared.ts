@@ -5,6 +5,7 @@ export const date: Definition = Object.freeze({
   typeStr: "string",
   limits: { min: 10, max: 10 },
   setAdapter: normalizeDate,
+  html: 'date',
 })
   
 export const setCode: Definition = Object.freeze({
