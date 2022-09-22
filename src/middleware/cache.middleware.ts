@@ -7,7 +7,11 @@ const dailyCache: express.RequestHandler = async function(req, res, next) {
     const id = today()
 
     const data = await Cached.load(id)
-    if (data) return res.send(data)
+    if (data) {
+      if (data.expires) data.exipresIn = data.expires - Date.now()
+      delete data.exipres
+      return res.send(data)
+    }
     
     res.locals.sendCache = (data: any) => 
       Cached.store(id, data)

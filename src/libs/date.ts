@@ -12,8 +12,7 @@ export const normalizeDate = (dateIn: UIDate) => isIsoDate(dateIn) ? dateIn :
   formatDateISO(!isDate(dateIn) ? new Date(dateIn) : dateIn) as DateType
 
 export const today = () => formatDateISO(new Date())
-export const tomorrow = startOfTomorrow
-export const untilTomorrow = () => startOfTomorrow().getTime() - new Date().getTime()
+export const tomorrow = () => startOfTomorrow().getTime()
 
 const toDate = (date: UIDate): Date => isDate(date) ? date as Date : new Date(date)
 export const daysInRange = (start: UIDate, end: UIDate) => eachDayOfInterval({ start: toDate(start), end: toDate(end) }).map(formatDateISO)
