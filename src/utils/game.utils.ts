@@ -16,16 +16,16 @@ export const getRandomEntries = <Type>(valueList: Type[], count: number): Type[]
 }
 
 
-const filterCards = ({ id, name, artist, img, url }: GameCardJoined):
+const filterCards = ({ id, name, artist, url }: GameCardJoined):
   Pick<Card, 'id'|'name'|'artist'|'img'|'url'> =>
   ({ id, name, artist, img: url && pathToUrl(url, true) })
 
 export const combineGame = (
-  { date, setCode, art  }: Game,
-  { name, block }: CardSet,
+  { date, art }: Game,
+  { name, block, code }: CardSet,
   cardDetails: GameCardJoined[]
 ) => ({
-  date, setCode, art, block,
-  setName: name,
-  cards: cardDetails.sort((a,b) => a.idx - b.idx).map(filterCards)
+  date,
+  setInfo: { code, name, block, art },
+  cards: cardDetails.sort((a,b) => a.idx - b.idx).map(filterCards),
 })
