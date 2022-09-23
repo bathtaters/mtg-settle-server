@@ -5,13 +5,15 @@ Backend for [Settle](https://github.com/bathtaters/mtg-settle) _(Magic: the Gath
 ---
 
 ## API Routes
-`http://backend.settle.gg/api/...`
+`[domain]/api/client/...`
 ##### _Header must include `{ Authorization: "Bearer <token>" }` with valid API token._
 
 | URL | Method | Body | Return | Description |
 |------|------|------|------|------|
-|`/game`|`GET`| |`{ game }`|Get encoded game data|
+|`/today`|`GET`| |`{ game }`|Get encoded game data|
 |`/setlist`|`GET`| |`[ { code, name, block } ]`|Get list of possible sets|
+
+##### _All data is encoded like `{ data: <payload>, secret?: <key for encoded data>, expiresIn: <time data can be safely cached (ms)> }`
 
 ---
 
