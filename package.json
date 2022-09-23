@@ -2,7 +2,7 @@
   "name": "mtg-settle-server",
   "version": "0.1.0",
   "description": "Backend server for Magic the Gathering set guessing game",
-  "main": "./src/internal/server.js",
+  "main": "./engine/server.js",
   "scripts": {
     "dev": "nodemon -x ts-node ./engine/server.js",
     "start": "pm2 start ecosystem.config.js && pm2 logs",
