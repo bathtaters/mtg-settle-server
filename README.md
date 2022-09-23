@@ -11,7 +11,7 @@ Backend for [Settle](https://github.com/bathtaters/mtg-settle) _(Magic: the Gath
 | URL | Method | Body | Return | Description |
 |------|------|------|------|------|
 |`/game`|`GET`| |`{ game }`|Get encoded game data|
-|`/img/[id]`|`GET`| |`Card Art`|Get card art|
+|`/setlist`|`GET`| |`[ { code, name, block } ]`|Get list of possible sets|
 
 ---
 
