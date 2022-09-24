@@ -2,15 +2,16 @@ extends components/base
 
 block head
   link(rel='stylesheet', href='/stylesheets/engine.css')
+  meta(http-equiv="Refresh" content="0; url='https://www.settle.gg'")
 
 block body
   #siteContainer
     header
-      span.logo= appTitle
+      span.logo Settle
       span.spacer
       span.logo
         a(href=urls.gui.root.login title="Login")
           img(src="/images/logo.png" alt=appTitle width="32px")
     
     #pageContainer
-      p Redirect to frontend after 5 seconds
+      p #[a(href="https://www.settle.gg") Click here] to return to the game.
