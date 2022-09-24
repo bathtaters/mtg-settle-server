@@ -18,6 +18,7 @@ apolloErr = (errors: readonly any[]) => createError(502, `Apollo Query Error(s)[
 apolloNull = (path: string) => createError(502, `Apollo Query returned null with no error, check objPath ("${path}") is accurate.`),
 apolloBad = (val: any, path: string) => createError(502, `Apollo Query returned non-array with no error (${val}), check objPath ("${path}") is accurate.`),
 modifyFileId = () => createError(400, 'Card image FileID cannot be modified, only generated or removed.'),
+unknownStorage = () => createError(502, 'Unknown ImageKit error (Check credentials/user permissions).'),
 
 // Manager errors
 invalidDateRange = () => createError(400, 'Date must be at one day ahead of today'),

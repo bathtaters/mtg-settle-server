@@ -3,13 +3,17 @@ import { UrlOptions, Transformation } from "imagekit/dist/libs/interfaces"
 import { delayRequest } from '../utils/fetch.utils'
 // @ts-ignore // resolveJsonModule is true in tsconfig
 import { ikOptions } from '../config/credentials.json'
+import * as errors from "../config/errors"
 import logger from "../../engine/libs/log"
 
 const imagekit = new ImageKit(ikOptions.connection)
 
 export async function storeImage(imageURL: string): Promise<ImageDetail> {
   await delayRequest(ikOptions.minRequestInterval, 'scryfall')
-  const res = await imagekit.upload({ file: imageURL, ...ikOptions.upload })
+  const res = await imagekit.upload({ file: imageURL, ...ikOptions.upload }).catch((err) => {
+    if (err instanceof Error && err.message) throw err
+    throw errors.unknownStorage()
+  })
   return { img: res.fileId, url: res.filePath }
 }
 
