@@ -10,7 +10,7 @@ Backend for [Settle](https://github.com/bathtaters/mtg-settle) _(Magic: the Gath
 
 | URL | Method | Body | Return | Description |
 |------|------|------|------|------|
-|`/today`|`GET`| |`[ Encoded solution/cards ]`|Get encoded game data|
+|`/today`|`GET`| |`<Encoded solution/cards>`|Get encoded game data|
 |`/setlist`|`GET`| |`[ { code, name, block } ]`|Get list of possible sets|
 
 ##### _All data is encoded like `{ data: <payload>, secret?: <key for encoded data>, expiresIn: <time data can be safely cached (ms)> }`
