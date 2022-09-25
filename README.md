@@ -49,10 +49,6 @@ You must create ./src/config/credentials.json with the following keys.
  - **Card/Set Images**: [Scryfall](https://scryfall.com/)
 
 ### To Do:
- - Clean up manager GUI
-    - Remove advanced options from non-admin manager (Only Create game [remove "up to"] & Pick a game)
-    - Sort game list by date
-    - Add Next/Prev buttons to game editor
  - Schedule services to run daily (populate upcoming games, archive old games)
     - Schedule databases to update Weekly
     - Log tasks to log.info

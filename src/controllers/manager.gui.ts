@@ -4,7 +4,7 @@ import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
 
-import { isIsoDate } from '../libs/date'
+import { isIsoDate, addDay } from '../libs/date'
 import { gameURL } from '../services/manager.services'
 import { cardImageURI } from '../config/fetch.cfg'
 import { hasAccess } from '../../engine/utils/users.utils'
@@ -17,8 +17,10 @@ import * as errors from '../config/errors'
 export const homeController: GuiHandler = async (req, res, next) => {
   try {
     const setList = await Sets.get().then((sets) => sets.filter(({ skip }) => !skip).map(({ code }) => code))
-    const gameList = await Games.get().then((games) => games.map(({ date }) => date))
+    const gameList = await Games.get().then((games) => games.map(({ date }) => date).sort().reverse())
     const cardSets = await Cards.getSetList()
+    
+    const minDate = gameList?.length && addDay(gameList[0])
     
     return res.render('manage', {
       title: 'Management Console',
@@ -29,6 +31,7 @@ export const homeController: GuiHandler = async (req, res, next) => {
       gameList,
       cardSets,
       cleanupOptions,
+      minDate,
       schema: managerForm,
       actions: managerActions,
       baseURL: gui.basic.prefix + gui.manage.prefix,
@@ -45,6 +48,9 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
     const game = await Games.get(date, 'date')
     if (!game) throw errors.noEntry(date)
 
+    const gameList = await Games.get().then((games) => games.map(({ date }) => date).sort())
+    const gameIdx = gameList.findIndex((gameDate) => gameDate === date)
+
     const solution = await Sets.get(game.setCode, 'code')
 
     const cards = await Games.getCards(game.date, Cards)
@@ -58,6 +64,8 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
       isAdmin: req.user && hasAccess(req.user.access, access.admin),
       csrfToken: req.csrfToken && req.csrfToken(),
       game,
+      next: gameList[gameIdx + 1],
+      prev: gameList[gameIdx - 1],
       solution,
       cards,
       allCards,
@@ -65,6 +73,7 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
       cardImageURI,
       actions: gameActions,
       baseURL: gui.basic.prefix + gui.manage.prefix,
+      gameURL: gui.basic.prefix + gui.manage.prefix + gui.manage.game + '/',
     })
   } catch (err) { return next(err) }
 }

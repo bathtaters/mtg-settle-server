@@ -7,9 +7,14 @@ block scripts
 
 block content
   .container
-    .row.relative
-      h3.col-sm Game: #{game.date}
-      a.button.rop-right(href=baseURL) Back
+    .row.nowrap.relative
+      if prev
+        .col: a.button.small(href=gameURL+prev) PREV
+      .col-sm.center.responsive-padding
+        h3.m-0 Game: #{game.date}
+        a.small.m-0(href=baseURL) Back
+      if next
+        .col: a.button.small(href=gameURL+next) NEXT
 
     h4.row.baseline.relative
       b Solution:
@@ -56,7 +61,7 @@ block content
         
         .row
           .input-group.vertical.button-input
-            label.tooltip(aria-label="Randomize all cards OR entire game") Randomize all:
+            label.tooltip(aria-label="Randomize all cards OR set + cards") Randomize all:
             .button-group
               input.button(type="submit" value=actions[4] name="_action")
               input.button(type="submit" value=actions[5]  name="_action")
@@ -67,11 +72,12 @@ block content
             '_action', 'submit'
           )
 
-          +buttonInput(
-            '', null, actions[7], null, null,
-            null, 'Delete game:', 'Delete this game entirely',
-            '_action', 'submit'
-          )
+          if isAdmin
+            +buttonInput(
+              '', null, actions[7], null, null,
+              null, 'Delete game:', 'Delete this game entirely',
+              '_action', 'submit'
+            )
 
           if csrfToken
             span: +formInput('_csrf', 'hidden', null, csrfToken)

@@ -6,46 +6,52 @@ block content
   .container: .row: .col-sm
     h3 Management Console
     form(method="POST" action=baseURL+urls.gui.manage.form)
-      .row
-        +buttonInput(
-          'updateSet', null, actions[0], null, null,
-          null, 'Update set list:', 'Re-download set list from database',
-          '_action', 'submit'
-        )
-        +buttonInput(
-          'addSet', setList, actions[1], null, null,
-          null, 'Add set:', 'Download cards from selected set',
-          '_action', 'submit'
-        )
-        +buttonInput(
-          'removeSet', cardSets, actions[2], null, null,
-          null, 'Remove set:', 'Delete all cards from selected set',
-          '_action', 'submit'
-        )
+      if isAdmin
+        .row
+          +buttonInput(
+            'updateSet', null, actions[0], null, null,
+            null, 'Update set list:', 'Re-download set list from database',
+            '_action', 'submit'
+          )
+          +buttonInput(
+            'addSet', setList, actions[1], null, null,
+            null, 'Add set:', 'Download cards from selected set',
+            '_action', 'submit'
+          )
+          +buttonInput(
+            'removeSet', cardSets, actions[2], null, null,
+            null, 'Remove set:', 'Delete all cards from selected set',
+            '_action', 'submit'
+          )
         
       .row
-        .input-group.vertical.button-input
-          label.tooltip(for="newGame" aria-label="Generate a new game for the selected date") Create game(s):
-          .button-group
-            +typedInp("newGame", schema.newGame.html, null, (new Date()).toJSON().slice(0,10))
-            input.button#_actionCreate(type="submit" value=actions[3] name="_action")
-            input.button#_actionUpTo(  type="submit" value=actions[4] name="_action")
-
         .input-group.vertical.button-input
           label.tooltip(for="game" aria-label="Select a game to edit or delete") Pick a game:
           .button-group
             +typedInp("game", gameList)
             input.button#_actionEdit(  type="submit" value=actions[5] name="_action")
-            input.button#_actionDelete(type="submit" value=actions[6] name="_action")
-      
-      .row
+            if isAdmin
+              input.button#_actionDelete(type="submit" value=actions[6] name="_action")
+
+
         .input-group.vertical.button-input
-          label.tooltip(for="cleanup" aria-label="Cleanup database, skipping any checked options") Cleanup DB:
+          label.tooltip(for="newGame" aria-label="Generate a new game for the selected date") Create game(s):
           .button-group
-            +checkboxes("cleanup", cleanupOptions, "Skip")
-            input.button#_actionClean(type="submit" value=actions[7] name="_action")
-        .flex-spacer
-        a.button.small.bordered.flex-end(href=baseURL+'/../db') Advanced
+            +typedInp("newGame", schema.newGame.html, !isAdmin && { min: minDate }, minDate || (new Date()).toJSON().slice(0,10))
+            input.button#_actionCreate(type="submit" value=actions[3] name="_action")
+            if isAdmin
+              input.button#_actionUpTo(  type="submit" value=actions[4] name="_action")
+      
+
+      if isAdmin
+        .row
+          .input-group.vertical.button-input
+            label.tooltip(for="cleanup" aria-label="Cleanup database, skipping any checked options") Cleanup DB:
+            .button-group
+              +checkboxes("cleanup", cleanupOptions, "Skip")
+              input.button#_actionClean(type="submit" value=actions[7] name="_action")
+          .flex-spacer
+          a.button.small.bordered.flex-end(href=baseURL+'/../db') Advanced
 
       if csrfToken
         span: +formInput('_csrf', 'hidden', null, csrfToken)
