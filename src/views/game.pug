@@ -11,7 +11,7 @@ block content
       if prev
         .col: a.button.small(href=gameURL+prev) PREV
       .col-sm.center.responsive-padding
-        h3.m-0 Game: #{game.date}
+        h3.m-0 Game: #{game.date} #{isLocked ? ' 🔒' : ''}
         a.small.m-0(href=baseURL) Back
       if next
         .col: a.button.small(href=gameURL+next) NEXT
@@ -26,63 +26,67 @@ block content
     
     hr
 
-    form.plain(method="POST" action=baseURL+urls.gui.manage.game+urls.gui.manage.form)
-      fieldset
-        legend Edit Game
-        .row
-          .input-group.vertical.button-input
-            +formInput('date', 'hidden', null, game.date)
+    if !isLocked || isAdmin
+      form.plain(method="POST" action=baseURL+urls.gui.manage.game+urls.gui.manage.form)
+        fieldset
+          legend Edit Game
+          .row
+            .input-group.vertical.button-input
+              +formInput('date', 'hidden', null, game.date)
 
-            label.tooltip(for="position" aria-label="Change a single card") Update one card:
-            .button-group
+              label.tooltip(for="position" aria-label="Change a single card") Update one card:
+              .button-group
 
-              select#position(name="position")
-                each card in cards
-                  option(for="position" value=card.idx) #{card.idx}: #{card.name}
+                select#position(name="position")
+                  each card in cards
+                    option(for="position" value=card.idx) #{card.idx}: #{card.name}
+                
+                input.button(type="submit" name="_action" value=actions[0])
+                
+                select#newCard(name="newCard")
+                  each card in allCards
+                    option(for="newCard" value=card.id data-preview=cardImageURI(card))= card.name
+                
+                input.button#randomCard(type="button" value=actions[1])
+                
+                a.button#previewCard(target="_blank")= actions[2]
               
-              input.button(type="submit" name="_action" value=actions[0])
-              
-              select#newCard(name="newCard")
-                each card in allCards
-                  option(for="newCard" value=card.id data-preview=cardImageURI(card))= card.name
-              
-              input.button#randomCard(type="button" value=actions[1])
-              
-              a.button#previewCard(target="_blank")= actions[2]
-            
-            .button-group
-              select#swapA(name="swapA")
-                each card in cards
-                  option(for="swapA" value=card.idx) #{card.idx}: #{card.name}
-              input.button(type="submit" name="_action" value=actions[3])
-              select#swapB(name="swapB")
-                each card in cards
-                  option(selected=(card.idx === 1) for="swapB" value=card.idx) #{card.idx}: #{card.name}
-        
-        .row
-          .input-group.vertical.button-input
-            label.tooltip(aria-label="Randomize all cards OR set + cards") Randomize all:
-            .button-group
-              input.button(type="submit" value=actions[4] name="_action")
-              input.button(type="submit" value=actions[5]  name="_action")
+              .button-group
+                select#swapA(name="swapA")
+                  each card in cards
+                    option(for="swapA" value=card.idx) #{card.idx}: #{card.name}
+                input.button(type="submit" name="_action" value=actions[3])
+                select#swapB(name="swapB")
+                  each card in cards
+                    option(selected=(card.idx === 1) for="swapB" value=card.idx) #{card.idx}: #{card.name}
+          
+          .row
+            .input-group.vertical.button-input
+              label.tooltip(aria-label="Randomize all cards OR set + cards") Randomize all:
+              .button-group
+                input.button(type="submit" value=actions[4] name="_action")
+                input.button(type="submit" value=actions[5]  name="_action")
 
-          +buttonInput(
-            'newSet', allSets, actions[6], null, solution.setCode,
-            null, 'Update solution:', 'Change the solution to a new set (w/ random cards)',
-            '_action', 'submit'
-          )
-
-          if isAdmin
             +buttonInput(
-              '', null, actions[7], null, null,
-              null, 'Delete game:', 'Delete this game entirely',
+              'newSet', allSets, actions[6], null, solution.setCode,
+              null, 'Update solution:', 'Change the solution to a new set (w/ random cards)',
               '_action', 'submit'
             )
 
-          if csrfToken
-            span: +formInput('_csrf', 'hidden', null, csrfToken)
+            .input-group.vertical.button-input
+              label.tooltip(aria-label="Prevent additional editing for this game") Manage storage:
+              .button-group
+                if !isLocked
+                  input.button(type="submit" value=actions[7] name="_action")
+                else if isAdmin
+                  input.button(type="submit" value=actions[8]  name="_action")
+                if isAdmin
+                  input.button(type="submit" value=actions[9]  name="_action")
 
-    hr
+            if csrfToken
+              span: +formInput('_csrf', 'hidden', null, csrfToken)
+
+      hr
 
     table.striped.horizontal.smallhdr
       caption Cards

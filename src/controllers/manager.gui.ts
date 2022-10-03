@@ -3,8 +3,9 @@ import { matchedData } from 'express-validator'
 import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
+import Cached from '../models/Cached'
 
-import { isIsoDate, addDay } from '../libs/date'
+import { isIsoDate, addDay, today } from '../libs/date'
 import { gameURL } from '../services/manager.services'
 import { cardImageURI } from '../config/fetch.cfg'
 import { hasAccess } from '../../engine/utils/users.utils'
@@ -19,16 +20,20 @@ export const homeController: GuiHandler = async (req, res, next) => {
     const setList = await Sets.get().then((sets) => sets.filter(({ skip }) => !skip).map(({ code }) => code))
     const gameList = await Games.get().then((games) => games.map(({ date }) => date).sort().reverse())
     const cardSets = await Cards.getSetList()
+
+    const lockedGames = await Cached.list()
+    const currentGame = today()
     
     const minDate = gameList?.length && addDay(gameList[0])
+    const isAdmin = req.user && hasAccess(req.user.access, access.admin)
     
     return res.render('manage', {
       title: 'Management Console',
       user: req.user && req.user.username,
-      isAdmin: req.user && hasAccess(req.user.access, access.admin),
+      isAdmin,
       csrfToken: req.csrfToken && req.csrfToken(),
       setList,
-      gameList,
+      gameList: isAdmin ? gameList : gameList.filter((date) => date >= currentGame && !lockedGames.includes(date)),
       cardSets,
       cleanupOptions,
       minDate,
@@ -58,14 +63,18 @@ export const gameController: GuiHandler<{ date?: string }> = async (req, res, ne
     const allCards = await Cards.find({ setCode: game.setCode }, false, 'number')
     const allSets = await Sets.get().then((sets) => sets.filter(({ skip }) => !skip).map(({ code }) => code))
 
+    const lockedGames = await Cached.list()
+    const isAdmin = req.user && hasAccess(req.user.access, access.admin)
+
     return res.render('game', {
       title: 'Game Editor',
       user: req.user && req.user.username,
-      isAdmin: req.user && hasAccess(req.user.access, access.admin),
+      isAdmin,
       csrfToken: req.csrfToken && req.csrfToken(),
       game,
-      next: gameList[gameIdx + 1],
-      prev: gameList[gameIdx - 1],
+      next: (isAdmin || !lockedGames.includes(gameList[gameIdx + 1])) && gameList[gameIdx + 1],
+      prev: (isAdmin || !lockedGames.includes(gameList[gameIdx - 1])) && gameList[gameIdx - 1],
+      isLocked: lockedGames.includes(date),
       solution,
       cards,
       allCards,

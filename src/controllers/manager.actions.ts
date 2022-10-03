@@ -3,8 +3,10 @@ import { matchedData } from 'express-validator'
 import Sets from '../models/Sets'
 import Cards from '../models/Cards'
 import Games from '../models/Games'
+import Cached from '../models/Cached'
 
 import { gameURL, getGameCards, updateGameCard, setGame, deleteGame, cleanDb, createGames } from '../services/manager.services'
+import { storeGameData } from '../services/game.services'
 import { isIsoDate } from '../libs/date'
 import { gui } from '../config/urls.cfg'
 import * as errors from '../config/errors'
@@ -92,6 +94,14 @@ export const gameForm: FormHandler<GameForm> = async (req, res, next) => {
         if (!game) throw errors.noEntry(data.date)
         const cards = await getGameCards(game.setCode)
         await Games.update(game.date, { cards }, 'date')
+        break
+
+      case 'Lock':
+        await storeGameData(data.date)
+        break
+
+      case 'Unlock':
+        await Cached.remove(data.date)
         break
 
       case 'Delete':

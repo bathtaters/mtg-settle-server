@@ -25,6 +25,11 @@ class Cached extends Model<Cache> {
     await this.add({ id, data, timestamp: getNow() }, 'overwrite')
   }
 
+  list() {
+    return this.custom<Pick<Cache, 'id'>>(`SELECT ${this.primaryId} FROM ${this.title}`)
+      .then((cached) => cached.map(({ id }) => id))
+  }
+
   load(id: string) {
     return this.get(id, 'id').then((res) => res && res.data)
   }

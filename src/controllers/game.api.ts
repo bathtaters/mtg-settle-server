@@ -1,20 +1,15 @@
 import { GuiHandler } from './express'
-import { today, tomorrow } from '../libs/date'
+import { today } from '../libs/date'
 import Sets from '../models/Sets'
-import { getGameData } from '../services/game.services'
-import { getSecret } from '../utils/encrypt.utils'
+import { storeGameData } from '../services/game.services'
 import { refetchSets } from '../config/game.cfg'
 
 
 export const getGame: GuiHandler = async (req, res, next) => {
   try {
-    const secret = getSecret()
-    const data = await getGameData(today(), secret)
+    const data = await storeGameData(today())
+    return res.locals.sendCache(data)
 
-    return res.locals.sendCache({
-      data, secret,
-      expires: tomorrow(),
-    })
   } catch (err) { return next(err) }
 }
 
