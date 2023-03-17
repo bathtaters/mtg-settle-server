@@ -3,6 +3,7 @@
 
 # compiled
 /built
+/deploy.sh
 
 # environments
 *.env
