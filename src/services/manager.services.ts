@@ -43,14 +43,18 @@ export async function setGame(date: string, ifExists?: IfExistsBehavior, setCode
 export async function createGames(endDate: string) {
   let dayList
   try { dayList = daysInRange(new Date(), endDate) }
-  catch (err) {
-    // @ts-ignore
+  catch (err: any) {
     if (err.name === 'RangeError') throw errors.invalidDateRange()
     else throw err
   }
   if (!dayList) throw errors.invalidDateRange()
 
-  for (const date of dayList) { await setGame(date, 'skip') }
+  const gameList = await Games.get().then((games) => games.map(({ date }) => date))
+
+  for (const date of dayList) {
+    if (gameList.includes(date)) continue
+    await setGame(date, 'skip')
+  }
 }
 
 
