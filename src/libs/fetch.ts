@@ -1,6 +1,7 @@
 import fetch from 'cross-fetch'
 import objPath from 'object-path'
 import { ApolloClient, HttpLink, InMemoryCache, QueryOptions } from "@apollo/client/core"
+import logger from '../../engine/libs/log'
 import { gqlOptions } from "../config/fetch.cfg"
 import { toObject, GenericObject } from "../utils/common.utils"
 import * as errors from '../config/errors'
@@ -27,9 +28,14 @@ export async function fetchRedirectURL(url: string, expectedStatus = 302): Promi
   try {
     const response = await fetch(url, { redirect: 'manual' })
 
-    if (response.status < 300 || response.status >= 400) return url
+    if (response.status < 300) {
+      logger.verbose(`Redirect response for ${url}: <${response.status}> instead of <${expectedStatus}>`)
+      return url
+    }
     if (response.status === expectedStatus) return response.headers.get('location')
 
+    const resTxt = await response.text()
+    logger.error(`Redirect response for ${url}: <${response.status}> ${resTxt}`)
     return null
 
   } catch (error: any) {
