@@ -24,6 +24,7 @@ gatewayError = (msg: string) => createError(502, msg),
 
 // Manager errors
 invalidDateRange = () => createError(400, 'Date must be at one day ahead of today'),
+creatingGames = () => createError(202, 'Creating games. Go back and refresh manager to check progress.'),
 
 // Games.model errors
 gameNotInit = () => createError(500, 'Games table not initialized, wait a second and try again.'),

@@ -38,8 +38,8 @@ export const homeForm: FormHandler<ManagerForm> = async (req, res, next) => {
       case 'Up To':
         if (!data.newGame) throw errors.noData('date')
         if (!isIsoDate(data.newGame)) throw errors.badData('game date',data.newGame,'date')
-        await createGames(data.newGame)
-        break
+        createGames(data.newGame)
+        throw errors.creatingGames()
 
       case 'Edit':
         if (!data.game) throw errors.noData('game')
