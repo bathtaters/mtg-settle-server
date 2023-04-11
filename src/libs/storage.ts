@@ -12,6 +12,7 @@ export async function storeImage(imageURL: string): Promise<ImageDetail> {
   await delayRequest(ikOptions.minRequestInterval, 'scryfall')
   const res = await imagekit.upload({ file: imageURL, ...ikOptions.upload }).catch((err) => {
     if (err instanceof Error && err.message) throw err
+    logger.verbose(err)
     throw errors.unknownStorage()
   })
   return { img: res.fileId, url: res.filePath }
