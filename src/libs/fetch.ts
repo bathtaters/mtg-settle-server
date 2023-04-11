@@ -23,6 +23,20 @@ export async function fetchData(url: string, toType: "object"|"blob"|"text"|"buf
   }
 }
 
+export async function fetchRedirectURL(url: string, expectedStatus = 302): Promise<string | null> {
+  try {
+    const response = await fetch(url, { redirect: 'manual' })
+
+    if (response.status < 300 || response.status >= 400) return url
+    if (response.status === expectedStatus) return response.headers.get('location')
+
+    return null
+
+  } catch (error: any) {
+    throw errors.gatewayError(`Failed to fetch redirected URL: ${error.message}`);
+  }
+}
+
 export async function queryDB(queryOptions: QueryOptions): Promise<any[]>
 export async function queryDB<Type>(queryOptions: QueryOptions, dataPath: string, normalizeCb: Normalizer<Type>): Promise<Type[]>
 export async function queryDB<Type>(queryOptions: QueryOptions, dataPath: string = '', normalizeCb?: Normalizer<Type>): Promise<Type[] | any[]> {
