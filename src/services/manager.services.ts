@@ -1,3 +1,4 @@
+import logger from '../../engine/libs/log'
 import { CleanupType } from '../controllers/express'
 import { IfExistsBehavior } from '../../engine/models/Model.d'
 import Sets from '../models/Sets'
@@ -53,6 +54,7 @@ export async function createGames(endDate: string) {
 
   for (const date of dayList) {
     if (gameList.includes(date)) continue
+    logger.verbose(`Creating game ${date} (Up to ${endDate}).`)
     await setGame(date, 'skip')
   }
 }
