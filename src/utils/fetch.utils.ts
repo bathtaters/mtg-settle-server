@@ -59,15 +59,17 @@ export const normalizeCard: Normalizer<Card> = (card: any) => {
 
 let prevReq = {} as { [key: string]: number }
 
-export function delayRequest(minSpacingMs: number, key: string): Promise<void> {
-  if (!minSpacingMs) return Promise.resolve()
+export const delayRequest = (minSpacingMs: number, key: string): Promise<void> =>
+  new Promise((res) => {
+    if (minSpacingMs <= 0) return res()
 
-  const diff = new Date().getTime() - (prevReq[key] || 0)
-  
-  if (diff > minSpacingMs) {
-    prevReq[key] = diff + (prevReq[key] || 0)
-    return Promise.resolve()
-  }
-  prevReq[key] = minSpacingMs + (prevReq[key] || 0)
-  return new Promise((res) => setTimeout(res, minSpacingMs - diff))
-}
+    const diff = Date.now() - (prevReq[key] || 0)
+    
+    if (diff > minSpacingMs) {
+      prevReq[key] = diff + (prevReq[key] || 0)
+      return res()
+    }
+    
+    prevReq[key] = minSpacingMs + (prevReq[key] || 0)
+    setTimeout(res, minSpacingMs - diff)
+  })
