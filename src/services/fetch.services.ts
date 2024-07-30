@@ -4,7 +4,7 @@ import { fetchData, queryDB }  from '../libs/fetch'
 import { storeImage, deleteImage, pathToUrl, listIds } from '../libs/storage'
 import Model from "../../engine/models/Model"
 import { normalizeCard, normalizeSet } from "../utils/fetch.utils"
-import { cardQuery, setQuery, setInfoURI, setSymbolKey, cardImageURI } from "../config/fetch.cfg"
+import { cardQuery, setQuery, setInfoURI, setSymbolKey, cardImageURI, scryfallHeaders } from "../config/fetch.cfg"
 import * as errors from '../config/errors'
 
 export async function updateCardImage(update: Partial<Card>, matching?: Card[]): Promise<void> {
@@ -63,7 +63,7 @@ export async function deleteCardImage(card: Card|Partial<Card>, Model?: Model<Ca
 }
 
 export async function getSetImage(setCode: CardSet['code']): Promise<Game['art']> {
-  let setInfo = await fetchData(setInfoURI(setCode), "object")
+  let setInfo = await fetchData(setInfoURI(setCode), "object", { headers: scryfallHeaders })
   if (!setInfo || !(setSymbolKey in setInfo) || typeof setInfo[setSymbolKey] !== 'string') {
     logger.warn(`No set symbol found for ${setCode}`)
     logger.verbose(JSON.stringify(setInfo))

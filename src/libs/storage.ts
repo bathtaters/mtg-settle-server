@@ -2,6 +2,7 @@ import ImageKit from "imagekit"
 import { fetchRedirectURL } from "./fetch"
 import { UrlOptions, Transformation } from "imagekit/dist/libs/interfaces"
 import { delayRequest } from '../utils/fetch.utils'
+import { scryfallHeaders } from '../config/fetch.cfg'
 // @ts-ignore // resolveJsonModule is true in tsconfig
 import { ikOptions } from '../config/credentials.json'
 import * as errors from "../config/errors"
@@ -12,7 +13,7 @@ const imagekit = new ImageKit(ikOptions.connection)
 export async function storeImage(imageURL: string): Promise<ImageDetail> {
   await delayRequest(ikOptions.minRequestInterval, 'scryfall')
   
-  const url = await fetchRedirectURL(imageURL)
+  const url = await fetchRedirectURL(imageURL, { headers: scryfallHeaders })
   const res = await imagekit.upload({ file: url || imageURL, ...ikOptions.upload }).catch((err) => {
     if (err instanceof Error && err.message) throw err
     throw errors.storageError(err)

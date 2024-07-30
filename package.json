@@ -1,6 +1,6 @@
 {
   "name": "mtg-settle-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Backend server for Magic the Gathering set guessing game",
   "main": "./built/engine/server.js",
   "scripts": {

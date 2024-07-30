@@ -4,12 +4,18 @@ import { TestRules } from "../utils/common.utils";
 import { Card } from "../models/_types";
 // @ts-ignore // resolveJsonModule is true in tsconfig
 import { gqlKey } from "./credentials.json";
+import { name, version } from "../../package.json"
 
 export const cardImageURI = ({ scryfallId = '' }: Partial<Card>) => scryfallId && 
   `https://api.scryfall.com/cards/${scryfallId}?format=image&version=art_crop`,
 
 setInfoURI = (setCode: Card['setCode']) => `https://api.scryfall.com/sets/${setCode}`,
 setSymbolKey = 'icon_svg_uri',
+
+scryfallHeaders = {
+  'User-Agent': `bathtaters-${name}/${version}`,
+  'Accept': 'application/json;q=0.9,*/*;q=0.8',
+},
 
 ignoreCards: TestRules<GQLCard>[] = [{
   test: 'some',

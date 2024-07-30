@@ -9,13 +9,13 @@ import * as errors from '../config/errors'
 const gqlClient = new ApolloClient({ link: new HttpLink({ ...gqlOptions, fetch }), cache: new InMemoryCache() })
 
 export async function fetchData(url: string): Promise<string>
-export async function fetchData(url: string, toType: "text"): Promise<string>
-export async function fetchData(url: string, toType: "blob"): Promise<Blob>
-export async function fetchData(url: string, toType: "buffer"): Promise<ArrayBuffer>
-export async function fetchData(url: string, toType: "object"): Promise<GenericObject | null>
-export async function fetchData(url: string, toType: "object"|"blob"|"text"|"buffer"): Promise<string | GenericObject | ArrayBuffer | Blob | null>
-export async function fetchData(url: string, toType: "object"|"blob"|"text"|"buffer" = "text"): Promise<string | GenericObject | ArrayBuffer | Blob | null> {
-  const data = await fetch(url)
+export async function fetchData(url: string, toType: "text", options?: RequestInit): Promise<string>
+export async function fetchData(url: string, toType: "blob", options?: RequestInit): Promise<Blob>
+export async function fetchData(url: string, toType: "buffer", options?: RequestInit): Promise<ArrayBuffer>
+export async function fetchData(url: string, toType: "object", options?: RequestInit): Promise<GenericObject | null>
+export async function fetchData(url: string, toType: "object"|"blob"|"text"|"buffer", options?: RequestInit): Promise<string | GenericObject | ArrayBuffer | Blob | null>
+export async function fetchData(url: string, toType: "object"|"blob"|"text"|"buffer" = "text", options: RequestInit = {}): Promise<string | GenericObject | ArrayBuffer | Blob | null> {
+  const data = await fetch(url, options)
   switch (toType) {
     case "blob":   return data.blob()
     case "buffer": return data.arrayBuffer()
@@ -24,9 +24,9 @@ export async function fetchData(url: string, toType: "object"|"blob"|"text"|"buf
   }
 }
 
-export async function fetchRedirectURL(url: string, expectedStatus = 302): Promise<string | null> {
+export async function fetchRedirectURL(url: string, options: RequestInit = {}, expectedStatus = 302): Promise<string | null> {
   try {
-    const response = await fetch(url, { redirect: 'manual' })
+    const response = await fetch(url, { redirect: 'manual', ...options })
 
     if (response.status < 300) {
       logger.verbose(`Redirect response for ${url}: <${response.status}> instead of <${expectedStatus}>`)
