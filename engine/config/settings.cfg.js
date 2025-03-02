@@ -68,7 +68,7 @@ module.exports = {
     },
     SENTRY: {
       default: '',
-      html: { type: 'text', limits: { min: 0, max: 2048 } },
+      html: { type: 'password', limits: { min: 0, max: 2048 } },
       tooltip: 'Sentry DSN path (Copy from Sentry project)',
     }
   },
