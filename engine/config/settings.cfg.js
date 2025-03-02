@@ -66,6 +66,11 @@ module.exports = {
       tooltip: 'Path to log files (Nothing = [project folder]/.logs)',
       formDefault: '',
     },
+    SENTRY: {
+      default: '',
+      html: { type: 'text', limits: { min: 0, max: 2048 } },
+      tooltip: 'Sentry DSN path (Copy from Sentry project)',
+    }
   },
 
   escapeChars: [ [RegEx(/\n/g), ' '], [RegEx(/=/g), '%3D']  ],

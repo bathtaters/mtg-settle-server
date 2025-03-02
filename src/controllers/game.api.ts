@@ -1,17 +1,17 @@
 import { GuiHandler } from './express'
+import { profile } from '../../engine/libs/monitor'
 import { today } from '../libs/date'
 import Sets from '../models/Sets'
 import { storeGameData } from '../services/game.services'
 import { refetchSets } from '../config/game.cfg'
 
 
-export const getGame: GuiHandler = async (req, res, next) => {
+export const getGame: GuiHandler = (req, res, next) => profile({ name: "getGame" }, async () => {
   try {
     const data = await storeGameData(today())
     return res.locals.sendCache(data)
-
   } catch (err) { return next(err) }
-}
+})
 
 
 export const getSetList: GuiHandler = async (req, res, next) => {

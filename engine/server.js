@@ -6,6 +6,7 @@ const { trustProxy, preflightCors } = require('./config/server.cfg')
 const { guiCSP, jsonPaths } = require(config+'gui.cfg')
 const { jsonPaths: userJsonPaths } = require('./config/users.cfg')
 // Module Dependencies
+const { initMonitoring } = require('./libs/monitor')
 const express = require('express')
 const { join } = require('path')
 const helmet = require('helmet')
@@ -60,6 +61,7 @@ server.use(urls.gui.basic.prefix, guiRoutes)
 server.use(urls.gui.admin.prefix, adminRoutes)
 
 // Error Handling
+initMonitoring(server)
 server.use([urls.api.prefix, ...(jsonPaths || []), ...(userJsonPaths || [])], errorMiddleware.json)
 server.use(errorMiddleware.html)
 

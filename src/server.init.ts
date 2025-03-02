@@ -1,4 +1,5 @@
 import express from 'express'
+import { profileMiddleware } from '../engine/libs/monitor'
 import clientRoutes from './routes/game.routes'
 import updateRoutes from './routes/manager.routes'
 import { pathToUrl } from './libs/storage'
@@ -17,7 +18,7 @@ function setup(server: express.Application) {
 }
 
 function middleware(server: express.Application) {
-  // Add custom middleware: server.use(middleware)
+  server.use(api.prefix+api.client+'/today', profileMiddleware)
 }
 
 function routes(server: express.Application) {
