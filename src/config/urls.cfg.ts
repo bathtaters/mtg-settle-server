@@ -4,6 +4,7 @@ export const api = Object.freeze({
   prefix: '/api',
   client: '/client',
   swap:   '/swap',
+  error:  '/client/report',
 }),
 
 gui = Object.freeze({

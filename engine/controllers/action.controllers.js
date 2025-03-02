@@ -1,4 +1,5 @@
 const { matchedData } = require('express-validator')
+const { sendError } = require('../libs/monitor')
 const Users = require('../models/Users')
 const { adminFormAdapter, userFormAdapter } = require('../services/users.services')
 const modelActions = require('../services/form.services')
@@ -79,4 +80,10 @@ exports.settingsForm = (req,res,next) => {
       res.render('delay', restartParams(req))
       restart()
     }).catch(next)
+}
+
+exports.forwardError = (req,res,next) => {
+  const { message, stack } = matchedData(req)
+  sendError(message, stack, req.user)
+  res.send({ success: true })
 }

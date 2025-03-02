@@ -1,11 +1,13 @@
 const Sentry = require('@sentry/node')
 const { nodeProfilingIntegration } = require('@sentry/profiling-node')
-const logger = require('./log')
+const logger = require('./log');
+const meta = require('../config/meta');
 
 if (process.env.SENTRY) Sentry.init({
   dsn: process.env.SENTRY,
   integrations: [nodeProfilingIntegration()],
   tracesSampleRate: 1.0,
+  release: meta.version,
 })
 
 function initMonitoring(server) {
@@ -17,6 +19,8 @@ function initMonitoring(server) {
 function profileMiddleware(req, res, next) {
     // Start profiler
     Sentry.profiler.startProfiler()
+    if (req.user) Sentry.setUser({ id: req.user.id, username: req.user.username })
+    else Sentry.setUser(null)
 
     // Stop profiler whenever route ends
     res.noSentryEnd = res.end
@@ -32,8 +36,14 @@ function profileMiddleware(req, res, next) {
     return next()
 }
 
+const sendError = !process.env.SENTRY ? () => {} : (message, stack, user) => {
+    if (user) Sentry.setUser({ id: user.id, username: user.username })
+    Sentry.captureException(new Error(message), { extra: { stack } })
+}
+
 module.exports = {
     initMonitoring,
     profileMiddleware,
+    sendError,
     profile: Sentry.startSpan,
 }

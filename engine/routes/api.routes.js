@@ -1,6 +1,8 @@
 const router = require('express').Router()
+const { profileMiddleware } = require('../libs/monitor')
 const validate = require('../validators/api.validators')
 const controllers = require('../controllers/api.controllers')
+const actions = require('../controllers/action.controllers')
 const authenticate = require('../middleware/cors.middleware')
 
 const { modelsPath, config } = require('../src.path')
@@ -15,5 +17,7 @@ models.forEach((Model) => {
   router.delete(`/${Model.url}/:${Model.primaryId}`, authenticate(Model.title, 'write'), validate.idOnly(Model), controllers.delete(Model)) // Delete
   router.post(  `/${Model.url}${urls.swap}`,         authenticate(Model.title, 'write'), validate.swap(Model),   controllers.swap(Model))   // Swap IDs
 })
+
+router.post(urls.error, profileMiddleware, authenticate(), validate.error, actions.forwardError)
 
 module.exports = router
