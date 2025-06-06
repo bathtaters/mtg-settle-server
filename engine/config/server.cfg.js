@@ -5,7 +5,7 @@ const useLocalCert = process.env.NODE_ENV === 'secure-dev' // NOTE: Recommend cl
 const isTest = process.env.NODE_ENV === 'test'
 module.exports = {
   isCluster: false, // Cluster mode not working
-  processCount: 6,
+  processCount: 3,
   trustProxy: isTest || decodeTrustProxy(process.env.TRUST_PROXY || require('./settings.cfg').definitions.TRUST_PROXY.default),
   isSecure: !isTest && (process.env.NODE_ENV === 'production' ? productionIsSecure : useLocalCert),
   csrfEnable: !isTest && true,
