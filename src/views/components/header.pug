@@ -11,6 +11,9 @@ header
         span.icon-user(alt="User Table")
       a.button.null(href=urls.gui.admin.prefix+urls.gui.admin.logs title="View Logs")
         span.icon-edit(alt="Logs")
+      if showMetrics
+        a.button.null(href=urls.gui.admin.prefix+urls.gui.admin.metrics title="Metrics (New Window)" target="_blank")
+          span.icon-info(alt="Metrics")
       a.button.null(href=urls.gui.admin.prefix+urls.gui.admin.home title="Settings")
         span.icon-settings(alt="Settings")
 

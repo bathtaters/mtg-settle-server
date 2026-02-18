@@ -1,12 +1,13 @@
-import express from 'express'
-import { profileMiddleware } from '../engine/libs/monitor'
-import clientRoutes from './routes/game.routes'
-import updateRoutes from './routes/manager.routes'
-import { pathToUrl } from './libs/storage'
-import { gui, api } from './config/urls.cfg'
+import express from "express";
+import { profileMiddleware } from "../engine/libs/monitor";
+import clientRoutes from "./routes/game.routes";
+import updateRoutes from "./routes/manager.routes";
+import { pathToUrl } from "./libs/storage";
+import { gui, api } from "./config/urls.cfg";
+import proxyServer from "./libs/proxy";
 
 function startup(server: express.Application) {
-  server.locals.imageUrl = pathToUrl
+  server.locals.imageUrl = pathToUrl;
 }
 
 function teardown() {
@@ -18,12 +19,13 @@ function setup(server: express.Application) {
 }
 
 function middleware(server: express.Application) {
-  server.use(api.prefix+api.client+'/today', profileMiddleware)
+  server.use(api.prefix + api.client + "/today", profileMiddleware);
 }
 
 function routes(server: express.Application) {
-  server.use(api.prefix+api.client,              clientRoutes)
-  server.use(gui.basic.prefix+gui.manage.prefix, updateRoutes)
+  server.use(api.prefix + api.client, clientRoutes);
+  server.use(gui.basic.prefix + gui.manage.prefix, updateRoutes);
+  server.use(gui.admin.prefix + gui.admin.metrics, proxyServer());
 }
 
-export { setup, middleware, routes, startup, teardown }
+export { setup, middleware, routes, startup, teardown };
