@@ -24,11 +24,13 @@ export default function proxyServer() {
         proxyReqOpts.headers["X-WEBAUTH-USER"] = req.user?.username;
         return proxyReqOpts;
       },
-      proxyErrorHandler: (err, res) => {
+      proxyErrorHandler: (err, _, next) => {
         logger.error(`Proxy Error: ${err}`);
-        res
-          .status(502)
-          .send(`Proxy server at ${url} is currently unreachable.`);
+        next({
+          status: 502,
+          name: "Proxy Error",
+          message: `Server at ${url} is currently unreachable.`,
+        });
       },
     }),
   ];
