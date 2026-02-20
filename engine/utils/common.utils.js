@@ -28,7 +28,10 @@ exports.exceptRoute = (skipPath, middleware) => {
   if (Array.isArray(middleware))
     return middleware.map((mw) => exports.exceptRoute(skipPath, mw));
 
-  const pathRe = RegEx(`^${skipPath.join("|^")}`, "i");
+  const pathRe = RegEx(
+    `^${Array.isArray(skipPath) ? skipPath.join("|^") : skipPath}`,
+    "i",
+  );
   return (req, res, next) =>
     pathRe.test(req.path) ? next() : middleware(req, res, next);
 };

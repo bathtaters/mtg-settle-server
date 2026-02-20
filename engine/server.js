@@ -39,14 +39,10 @@ if (process.env.NODE_ENV === "production") server.disable("x-powered-by");
 customServer.setup && customServer.setup(server);
 
 // Server-level Middleware
-const nonProxyGui = [
-  urls.api.prefix,
-  urls.gui.admin.prefix + urls.gui.admin.metrics,
-];
 server.use(exitMiddleware(server));
 server.use(
   exceptRoute(
-    nonProxyGui,
+    urls.api.prefix,
     helmet({ contentSecurityPolicy: { directives: guiCSP } }),
   ),
 );
@@ -58,9 +54,9 @@ server.use("/", express.static(join(staticRootPath, "public", "root")));
 server.use(express.static(join(staticRootPath, "engine", "public")));
 server.options(urls.api.prefix + "/*", cors(preflightCors));
 server.use(urls.api.prefix, apiLimiter);
-server.use(exceptRoute([urls.api.prefix], guiLimiter));
-server.use(exceptRoute([urls.api.prefix], authMiddleware));
-csrfMiddleware && server.use(exceptRoute(nonProxyGui, csrfMiddleware));
+server.use(exceptRoute(urls.api.prefix, guiLimiter));
+server.use(exceptRoute(urls.api.prefix, authMiddleware));
+csrfMiddleware && server.use(exceptRoute(urls.api.prefix, csrfMiddleware));
 customServer.middleware && customServer.middleware(server);
 server.use(logMiddleware());
 
