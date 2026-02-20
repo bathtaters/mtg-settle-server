@@ -16,7 +16,11 @@ function teardown() {
 }
 
 function setup(app: express.Application) {
-  // Add custom server settings/run-first middleware: server.set(setting, value)
+  // Run before generic middleware
+  app.use(
+    gui.admin.prefix + gui.admin.metrics,
+    express.json({ limit: "10mb" }),
+  );
 }
 
 function middleware(app: express.Application) {
