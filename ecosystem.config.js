@@ -13,7 +13,7 @@ const prodOptions = {
   autorestart      : true,
   stop_exit_codes  : [0],
   max_restarts     : 10,
-  max_memory_restart:"150M",
+  max_memory_restart:"250M",
   min_uptime       : "90s",
   restart_delay    : 100,
   kill_timeout     : serverCfg.gracefulExitOptions.suicideTimeout + 100,
