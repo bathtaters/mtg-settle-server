@@ -1,5 +1,5 @@
-import type { Server } from "http";
-import express from "express";
+import express, { type RequestHandler } from "express";
+import promBundle from "express-prom-bundle";
 import { profileMiddleware } from "../engine/libs/monitor";
 import clientRoutes from "./routes/game.routes";
 import updateRoutes from "./routes/manager.routes";
@@ -28,9 +28,16 @@ function middleware(app: express.Application) {
 }
 
 function routes(app: express.Application) {
+  const metricsMiddleware: RequestHandler = promBundle({
+    includeMethod: true,
+    includePath: true,
+    includeStatusCode: true,
+  }) as any; // Fix middleware type mismatch
+
+  app.use(gui.admin.prefix + gui.admin.metrics, proxyServer());
+  app.use(metricsMiddleware);
   app.use(api.prefix + api.client, clientRoutes);
   app.use(gui.basic.prefix + gui.manage.prefix, updateRoutes);
-  app.use(gui.admin.prefix + gui.admin.metrics, proxyServer());
 }
 
 export { setup, middleware, routes, startup, teardown };
