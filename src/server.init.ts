@@ -5,11 +5,10 @@ import clientRoutes from "./routes/game.routes";
 import updateRoutes from "./routes/manager.routes";
 import { pathToUrl } from "./libs/storage";
 import { gui, api } from "./config/urls.cfg";
-import { proxyServer, handleUpgrade } from "./libs/proxy";
+import { proxyServer } from "./libs/proxy";
 
-function startup(app: express.Application, server: Server) {
+function startup(app: express.Application) {
   app.locals.imageUrl = pathToUrl;
-  server.on("upgrade", handleUpgrade);
 }
 
 function teardown() {
