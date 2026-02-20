@@ -16,18 +16,6 @@ function teardown() {
 }
 
 function setup(app: express.Application) {
-  // Run before generic middleware
-  app.use(
-    gui.admin.prefix + gui.admin.metrics,
-    express.json({ limit: "10mb" }),
-  );
-}
-
-function middleware(app: express.Application) {
-  app.use(api.prefix + api.client + "/today", profileMiddleware);
-}
-
-function routes(app: express.Application) {
   const metricsMiddleware: RequestHandler = promBundle({
     includeMethod: true,
     includePath: true,
@@ -36,6 +24,13 @@ function routes(app: express.Application) {
 
   app.use(gui.admin.prefix + gui.admin.metrics, proxyServer());
   app.use(metricsMiddleware);
+}
+
+function middleware(app: express.Application) {
+  app.use(api.prefix + api.client + "/today", profileMiddleware);
+}
+
+function routes(app: express.Application) {
   app.use(api.prefix + api.client, clientRoutes);
   app.use(gui.basic.prefix + gui.manage.prefix, updateRoutes);
 }

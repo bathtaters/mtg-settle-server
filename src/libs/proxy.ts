@@ -1,7 +1,10 @@
 import type { RequestHandler } from "express";
 import Server, { createProxyServer } from "http-proxy";
 import logger from "../../engine/libs/log";
-import { checkAuth } from "../../engine/middleware/auth.middleware";
+import {
+  authMiddleware,
+  checkAuth,
+} from "../../engine/middleware/auth.middleware";
 import {
   normalizeError,
   sendAsHTML,
@@ -20,7 +23,7 @@ export function proxyServer(): RequestHandler[] {
   const url = process.env.METRICS;
   if (!url) {
     proxy = null;
-    return [checkAuth(gui.root.login, access.admin)];
+    return [(_req, _res, next) => next()];
   }
 
   // Configure proxy server
@@ -51,7 +54,8 @@ export function proxyServer(): RequestHandler[] {
 
   logger.verbose(`Forwarding HTTP requests to Grafana @ ${url}.`);
   return [
-    // Check user authentication
+    // Retrieve and check user authentication
+    ...authMiddleware(),
     checkAuth(gui.root.login, access.admin),
 
     // Redirect requests to proxy
@@ -59,6 +63,7 @@ export function proxyServer(): RequestHandler[] {
       proxy?.web(req, res, {
         headers: {
           "X-WEBAUTH-USER": req.user?.username || "",
+          Host: req.headers.host || "",
         },
       });
     },
