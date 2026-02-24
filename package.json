@@ -36,7 +36,7 @@
     "cross-fetch": "^4.0.0",
     "date-fns": "^3.6.0",
     "dotenv": "^16.0.1",
-    "express": "4.20",
+    "express": "4.22.0",
     "express-graceful-exit": "^0.5.2",
     "express-prom-bundle": "^8.0.0",
     "express-rate-limit": "^7.0.2",
