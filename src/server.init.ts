@@ -17,9 +17,15 @@ function teardown() {
 
 function setup(app: express.Application) {
   const metricsMiddleware: RequestHandler = promBundle({
+    includeUp: true,
     includeMethod: true,
     includePath: true,
     includeStatusCode: true,
+    normalizePath: ({ path, baseUrl, route }) =>
+      (route?.path || path).replace(baseUrl, ""),
+    promClient: {
+      collectDefaultMetrics: {},
+    },
   }) as any; // Fix middleware type mismatch
 
   app.use(gui.admin.prefix + gui.admin.metrics, proxyServer());
