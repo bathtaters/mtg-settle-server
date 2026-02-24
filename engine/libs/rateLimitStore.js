@@ -15,19 +15,20 @@ class SQLiteStore {
     this.table = table
     if (!db) db = this.table
 
-		const isFile = !db.includes(':memory:') && !db.includes('?mode=memory')
-		if (isFile && mkDir(dir, { recursive: true })) logger.info(`Created database folder: ${dir}`)
+	const isFile = !db.includes(':memory:') && !db.includes('?mode=memory')
+	if (isFile && mkDir(dir, { recursive: true })) logger.info(`Created database folder: ${dir}`)
 
     this.db = new sqlite.Database(isFile ? join(dir, db) : db, mode)
+	this.db.exec('PRAGMA journal_mode = WAL')
 
-		this.promise = services.exec(this.db, `CREATE TABLE IF NOT EXISTS ${this.table} (id PRIMARY KEY, hits, expires)`)
+	this.promise = services.exec(this.db, `CREATE TABLE IF NOT EXISTS ${this.table} (id PRIMARY KEY, hits, expires)`)
 		
     var self = this
-		this.promise.then(function() {
-			if (!isRootInstance) return
-			dbCleanup(self, true)
-			setInterval(dbCleanup, cleanupRateLimiter, self).unref()
-		})
+	this.promise.then(function() {
+		if (!isRootInstance) return
+		dbCleanup(self, true)
+		setInterval(dbCleanup, cleanupRateLimiter, self).unref()
+	})
   }
 
 
