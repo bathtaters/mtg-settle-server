@@ -19,7 +19,12 @@ class SQLiteStore {
 	if (isFile && mkDir(dir, { recursive: true })) logger.info(`Created database folder: ${dir}`)
 
     this.db = new sqlite.Database(isFile ? join(dir, db) : db, mode)
-	this.db.exec('PRAGMA journal_mode = WAL')
+	this.db.serialize(() => {
+		this.db.run("PRAGMA journal_mode = WAL"); 
+		this.db.run("PRAGMA synchronous = NORMAL"); 
+		this.db.run("PRAGMA busy_timeout = 5000"); 
+		this.db.run("PRAGMA temp_store = MEMORY");
+	});
 
 	this.promise = services.exec(this.db, `CREATE TABLE IF NOT EXISTS ${this.table} (id PRIMARY KEY, hits, expires)`)
 		
